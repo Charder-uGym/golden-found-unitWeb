@@ -1,0 +1,208 @@
+<!-- Page Content -->               
+<div class="content container-fluid">
+
+  <div class="crms-title row bg-white">
+    <div class="col ">
+      <h3 class="page-title m-0">
+        <span class="page-title-icon bg-gradient-primary text-white ">
+          <i class="fa fa-list-ul" aria-hidden="true"></i>
+        </span>
+        <span id="ml-查詢課程狀況">由 ml-查詢課程狀況 搭配多國語言設定 決定</span>
+      </h3>
+    </div>
+  </div>
+
+  <!-- 顯示/隱藏 欄位 選擇 Modal -->
+  <div class="modal" id="sessionSelHideColumn" tabindex="-1" role="dialog" aria-labelledby="ml-選擇顯示欄位" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="ml-選擇顯示欄位">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>                        
+        </div>
+                 
+        <div style="margin-top=10px">
+          <button type="button" class="btn btn-secondary" style="margin:10px;background:#4CC3D5; border:none" onclick="sessionDispAll()"><span id="ml-全部顯示"></span></button>
+          <button type="button" class="btn btn-secondary" style="margin:10px;background:#6D757D; border:none" onclick="sessionHideAll()"><span id="ml-全部隱藏"></span></button>          
+        </div>
+                  
+        <div class="modal-body" id="session_modal">
+          <!--內容由下面程式 append-->
+        </div>
+         
+                           
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"><span id="ml-放棄設定"></span></button>
+          <button type="button" class="btn btn-primary" onclick="sessionSetDispHide()"><span id="ml-儲存設定"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div style="margin: 10px">
+    <span style="margin-left:0px" id ="ml-開始日期">  開始日期 </span> 
+    <input id="sessionQueryStartDate" type='date' />
+
+    <span style="margin-left:30px" id ="ml-結束日期"> 結束日期 </span> 
+    <input id="sessionQueryEndDate"   type='date'/>
+
+    <button style="margin-left:30px" class="btn-gradient-primary font-weight-bold" onclick="querySessions()" >
+      <span id="ml-檢查">檢 查</span>
+    </button>
+    
+    <button type="button" style="float:right" class="btn-gradient-primary font-weight-bold" data-toggle="modal" data-target="#sessionSelHideColumn">
+      <span id="ml-選擇顯示欄位">選擇顯示欄位</span>
+    </button> 
+      
+    <button id="hiddenSessionCol" type="button" style="display:none; float:right;color:black;background:white; margin-right:10px" class="btn-gradient-primary font-weight-bold" >
+      <span id="ml-有隱藏欄位">有隱藏欄位</span>
+    </button> 
+        
+  </div>
+
+  <!-- Page Header -->
+
+  <!-- Content Starts -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-0">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="query-sessions" class="table table-striped table-nowrap custom-table mb-0">
+              <thead>
+                <tr>
+                  <th id="ml-上課日期">預約日期</th>
+                  <th id="ml-上課時間">預約時間</th>                           
+                  <th id="ml-店鋪名稱">店鋪名稱</th>
+                  <th id="ml-客戶名字">客戶名字</th>
+                  <th id="ml-客戶編號">客戶編號</th>
+                  <th id="ml-合約編號">合約編號</th>
+                  <th id="ml-負責教練">負責教練</th>
+                  <th id="ml-合約名稱">合約名稱</th>                            
+                  <th id="ml-合約時間_月">合約時間_月</th>
+                  <th id="ml-合約簽訂日期">合約簽訂日期</th>
+                  <th id="ml-合約開始日期">合約開始日期</th>
+                  <th id="ml-合約期限">合約期限</th>
+                  <th id="ml-合約已進行_月">合約已進行(月)</th>
+                  <th id="ml-合約總價_含稅">合約總價(含稅)</th>
+                  <th id="ml-合約總價_未稅">合約總價(未稅)</th>
+                  <th id="ml-合約狀態">合約狀態</th>
+                  <th id="ml-開始後來店頻率">開始後來店頻率</th>
+                  <th id="ml-堂數排序">堂數排序</th>
+                  <th id="ml-合約堂數">合約堂數</th>
+                  <th id="ml-合約已執行堂數">合約已執行堂數</th>
+                  <th id="ml-合約退會堂數">合約退會堂數</th>
+                  <th id="ml-合約剩餘堂數">合約剩餘堂數</th>
+                  <th id="ml-課程單價_含稅">課程單價(含稅)</th>
+                  <th id="ml-課程單價_未稅">課程單價(未稅)</th>
+                  <th id="ml-合約已認列金額_含稅">合約已認列金額(含稅)</th>
+                  <th id="ml-合約已認列金額_未稅">合約已認列金額(未稅)</th>
+                  <th id="ml-合約未認列金額_含稅">合約未認列金額(含稅)</th>
+                  <th id="ml-合約未認列金額_未稅">合約未認列金額(未稅)</th>
+                  <th id="ml-當日認列金額_含稅">當日認列金額(含稅)</th>                            
+                  <th id="ml-當日認列金額_未稅">當日認列金額(未稅)</th>                            
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>		
+    </div>
+  </div>
+
+  <script>
+    function sessionSetDispHide(){
+      var someColIsHidden = false;
+      for (var i=0;i<sessionCol_nums;i++){
+        var col_check_id = "#sessionCol_" + i.toString();
+        querySessionsTable.column(i).visible(($(col_check_id).prop("checked")));
+        if (!($(col_check_id).prop("checked"))) someColIsHidden = true;
+      }
+      
+      (someColIsHidden)? $("#hiddenSessionCol").show():$("#hiddenSessionCol").hide();
+      
+      $("#sessionSelHideColumn").modal("toggle");
+      
+    }
+    
+    function sessionDispAll(){
+      for (var i=0;i<sessionCol_nums;i++){
+        var col_check_id = "#sessionCol_" + i.toString();
+        $(col_check_id).prop("checked", true);
+      }      
+    }
+    
+    function sessionHideAll(){
+      for (var i=0;i<sessionCol_nums;i++){
+        var col_check_id = "#sessionCol_" + i.toString();
+        $(col_check_id).prop("checked", false);
+      }      
+    }    
+    
+  </script>
+  
+  <script>
+    $("#sessionQueryStartDate").val(today.toISOString().substr(0,10)); 
+    $("#sessionQueryEndDate").val(today.toISOString().substr(0,10));  
+    
+    var querySessionsTable  =$('#query-sessions').DataTable( {
+      dom: 'Bfrtip',
+      buttons: [
+        { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
+        { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
+      ],
+      order: [[ 2, "asc" ], [ 0, "asc" ], [ 1, "asc" ]],
+      data: querySessionsResult,
+      columnDefs: [ 
+        { // 小數點下兩位
+          targets: [12,13,14,16,20,22,23,24,25,26,27,28,29],
+          render: $.fn.dataTable.render.number(',', '.', 2)
+        },
+        { // 靠右對齊
+          targets: [8,17,18,19,21,12,13,14,16,20,22,23,24,25,26,27,28,29],
+          className: 'number-to-right'
+        },            
+      ]           
+    } );  
+        
+    var sessionCol_nums = querySessionsTable.columns()[0].length;
+    console.log(sessionCol_nums);
+    
+    for (var i=0; i< sessionCol_nums; i+=2 ){
+      var name_0= querySessionsTable.column(i).header().outerHTML.split('\"')[1];    
+      if ((i+1) < sessionCol_nums) var name_1= 
+          querySessionsTable.column(i+1).header().outerHTML.split('\"')[1];
+      
+      var appendHTML= 
+      ` <div class="row">
+          <div class="col">
+            <input id="sessionCol_${i}" type="checkbox" checked=true />        
+            <span id="${name_0}"></span>
+          </div>
+      `;
+      
+      appendHTML+= ((i+1) >= sessionCol_nums)?"":
+      `
+          <div class="col">
+            <input id="sessionCol_${(i+1)}" type="checkbox" checked=true />        
+            <span id="${name_1}"></span>
+          </div>
+        </div>
+      `;        
+
+      //console.log(appendHTML);
+      $("#session_modal").append(appendHTML);
+    }    
+    
+    $("#hiddenSessionCol").hide();  
+    
+    if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));    
+    
+  </script>
+</div>
+
+  <!-- /Content End -->
+  
+<!-- /Page Content -->

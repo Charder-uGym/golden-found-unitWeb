@@ -1,0 +1,213 @@
+<!-- Page Content -->               
+<div class="content container-fluid">
+
+  <div class="crms-title row bg-white">
+    <div class="col ">
+      <h3 class="page-title m-0">
+        <span class="page-title-icon bg-gradient-primary text-white ">
+          <i class="fa fa-bell-o" aria-hidden="true"></i>
+        </span>
+        <span id="ml-檢查即將到期合約"> 檢查即將到期合約 </span>
+      </h3>
+    </div>
+  </div>
+  
+  <!-- 顯示/隱藏 欄位 選擇 Modal -->
+  <div class="modal" id="expSelHideColumn" tabindex="-1" role="dialog" aria-labelledby="ml-選擇顯示欄位" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="ml-選擇顯示欄位">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>                        
+        </div>
+                 
+        <div style="margin-top=10px">
+          <button type="button" class="btn btn-secondary" style="margin:10px;background:#4CC3D5; border:none" onclick="expDispAll()"><span id="ml-全部顯示"></span></button>
+          <button type="button" class="btn btn-secondary" style="margin:10px;background:#6D757D; border:none" onclick="expHideAll()"><span id="ml-全部隱藏"></span></button>          
+        </div>
+                  
+        <div class="modal-body" id="exp_modal">
+          <!--內容由下面程式 append-->
+        </div>
+         
+                           
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"><span id="ml-放棄設定"></span></button>
+          <button type="button" class="btn btn-primary" onclick="expSetDispHide()"><span id="ml-儲存設定"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>  
+
+  <div style="margin: 10px">
+    <span style="margin-left:0px" id ="ml-開始日期">  開始日期 </span> 
+    <input id="expQueryStartDate" type='date' />
+
+    <span style="margin-left:30px" id ="ml-結束日期"> 結束日期 </span> 
+    <input id="expQueryEndDate"   type='date' />
+
+    <button style="margin-left:30px" class="btn-gradient-primary font-weight-bold" onclick="checkExpirations()" >
+      <span id="ml-檢查">檢 查</span>
+    </button>
+    
+    <button type="button" style="float:right" class="btn-gradient-primary font-weight-bold" data-toggle="modal" data-target="#expSelHideColumn">
+      <span id="ml-選擇顯示欄位">選擇顯示欄位</span>
+    </button> 
+      
+    <button id="hiddenExpCol" type="button" style="display:none; float:right;color:black;background:white; margin-right:10px" class="btn-gradient-primary font-weight-bold" >
+      <span id="ml-有隱藏欄位">有隱藏欄位</span>
+    </button> 
+        
+  </div>
+
+  <!-- Page Header -->
+
+  <!-- Content Starts -->
+  <div class="row">
+      <div class="col-md-12">
+          <div class="card mb-0">
+              <div class="card-body">
+                  <div class="table-responsive">
+                      <table id="expirations" class="table table-striped table-nowrap custom-table mb-0">
+                          <thead>
+                              <tr>
+                                  <th id="ml-店鋪名稱">店鋪名稱</th>												
+                                  <th id="ml-客戶名字">客戶名字</th>
+                                  <th id="ml-合約編號">合約編號</th>
+                                  <th id="ml-課程種類">課程種類</th>
+                                  <th id="ml-合約狀態">合約狀態</th>
+                                  <th id="ml-合約到期日期">合約到期日期</th>
+                                  <th id="ml-延展到期日期">延展到期日期</th>
+                                  <th id="ml-第一次上課日期">第一次上課日期</th>
+                                  <th id="ml-負責教練">負責教練</th>										
+                              </tr>
+                          </thead>
+                      </table>
+                  </div>
+              </div>
+          </div>		
+      </div>
+  </div>
+  <!-- /Content End -->
+
+  <script>
+    function expSetDispHide(){
+      var someColIsHidden = false;
+      for (var i=0;i<expCol_nums;i++){
+        var col_check_id = "#expCol_" + i.toString();
+        expirationsTable.column(i).visible(($(col_check_id).prop("checked")));
+        if (!($(col_check_id).prop("checked"))) someColIsHidden = true;        
+      }
+      
+      (someColIsHidden)? $("#hiddenExpCol").show():$("#hiddenExpCol").hide();
+      
+      $("#expSelHideColumn").modal("toggle");
+      
+    }
+    
+    function expDispAll(){
+      for (var i=0;i<expCol_nums;i++){
+        var col_check_id = "#expCol_" + i.toString();
+        $(col_check_id).prop("checked", true);
+      }      
+    }
+    
+    function expHideAll(){
+      for (var i=0;i<expCol_nums;i++){
+        var col_check_id = "#expCol_" + i.toString();
+        $(col_check_id).prop("checked", false);
+      }      
+    }    
+    
+  </script>
+
+  <script>
+    $("#expQueryStartDate").val(today.toISOString().substr(0,10)); 
+    $("#expQueryEndDate").val(today.toISOString().substr(0,10));      
+
+    var expirationsTable  =$('#expirations').DataTable( {
+      dom: 'Bfrtip',
+      buttons: [
+        { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
+        { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
+      ],
+      order: [[ 5, "asc" ]],
+      data: expResult,
+      columnDefs: [
+    //              { targets: 0, 
+    //                render: function (data) {  
+    //                  var tmp = data.split(';');
+    //                  //console.log(tmp);
+    //                  return  '<a href="#" class="avatar">'+
+    //                            '<img alt="" src="assets/img/profiles/'+tmp[0]+'">'+
+    //                          '</a>'+
+    //                            '<a href="#" data-toggle="modal" data-target="#system-user" onclick="alert()">' + tmp[1]+
+    //                          '</a>'
+    //                },
+    //              },
+    //              { targets: 4, 
+    //                render: function (data) { 
+    //                  var tmp = data.split(';');
+    //                  return  '<span class="badge badge-gradient-'+tmp[1]+'">'+ tmp[0] +'</span>'
+    //                },
+    //              },
+    //              { targets: -2, 
+    //                render: function (data) {  
+    //                  if (data==true) return  '<i class="fa fa-check-square-o" aria-hidden="true"></i><span style="display:none" >Y</span>';
+    //                  else            return  '<i class="fa fa-times" aria-hidden="true"></i><span style="display:none">N</span>';
+    //                  
+    //                },
+    //              },
+    //              { targets: -1, 
+    //                render: function (data) {  
+    //                  return '<div class="dropdown dropdown-action">'+
+    //		                   '<a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" '+
+    //                           'aria-expanded="false"><i class="material-icons">more_vert</i></a> '+
+    //				           '<div class="dropdown-menu dropdown-menu-right">' +
+    //                             '<a class="dropdown-item" onclick="alert('+"'Edit: '+"+data+')">Edit</a>'+
+    //                             '<a class="dropdown-item" onclick="alert('+"'Change: '+"+data+')">Change</a>'+
+    //                           '</div>'+
+    //                         '</div>'
+    //                },
+    //              }                   
+      ]           
+    } );
+    
+    var expCol_nums = expirationsTable.columns()[0].length;
+    console.log(expCol_nums);
+    
+    for (var i=0; i< expCol_nums; i+=2 ){
+      var name_0= expirationsTable.column(i).header().outerHTML.split('\"')[1];    
+      if ((i+1) < expCol_nums) var name_1= 
+          expirationsTable.column(i+1).header().outerHTML.split('\"')[1];      
+      
+      var appendHTML= 
+      ` <div class="row">
+          <div class="col">
+            <input id="expCol_${i}" type="checkbox" checked=true />        
+            <span id="${name_0}"></span>
+          </div>
+      `;
+      
+      appendHTML+= ((i+1) >= expCol_nums)?"":
+      `
+          <div class="col">
+            <input id="expCol_${(i+1)}" type="checkbox" checked=true />        
+            <span id="${name_1}"></span>
+          </div>
+        </div>
+      `;        
+
+      //console.log(i, appendHTML);
+      $("#exp_modal").append(appendHTML);
+    }
+    
+    $("#hiddenExpCol").hide();  
+    
+    if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));      
+    
+  </script>    
+</div>
+<!-- /Page Content -->

@@ -1,0 +1,137 @@
+<!--sidebar HTML for load-->
+<!--
+<div class="sidebar-inner slimscroll">
+  <form action="search.html" class="mobile-view">
+      <input class="form-control" type="text" placeholder="Search here">
+      <button class="btn" type="button"><i class="fa fa-search"></i></button>
+  </form>
+-->
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto Sans TC">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto Sans Mono">
+ 
+  <div id="sidebar-menu" class="sidebar-menu">
+       
+<!--
+    <div style="font-size:10px; color:white; margin-top:50px;  margin-right:20px; text-align: right">
+      Web Tools V2.0 alpha
+    </div>
+-->
+          <a style="margin-left:20px; margin-top:0px; padding-top:0px; color:white; font-size:20px; font-weight:bold;">量測記錄</a>
+          
+          <button onClick="清除已登錄量測記錄()" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; margin-bottom:8px; margin-left:0px; vertical-align:middle">清除已登錄量測紀錄</button>                  
+                 
+          <a style="color:white; float:right; margin-right:10px; margin-top:2px"> 自動更新</a>
+          <input type="checkbox" id="autoUpdate" checked style="float:right; margin-right:5px; margin-top:5px" onClick="切換自動更新()">                    
+          <button id="手動更新按鈕" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; float:right; margin-right:5px; margin-top:0px; display:none">手動更新</button>
+          
+           
+          
+          <nav style="color:white;margin-left:20px; margin-right:10px; height:703px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       
+            <ul id="量測記錄表" style="padding:10px">
+<!--
+                <li id="rb1"><button class="確定登錄按鈕" id="rec1" onClick="確定登錄按鈕(1)">確定登錄</button>林X文 4.75kg 10/29 下午2:43:39</li>  
+                <li id="rb1"><button class="確定登錄按鈕" id="rec2" onClick="確定登錄按鈕(2)">確定登錄</button>林X文 4.75kg 10/29 下午2:43:39</li>                  
+-->
+            </ul>          
+          </nav>
+          
+          <a style="color:white; margin-left:20px; margin-top:10px">最佳使用解析度: 1920 x 1080</a>
+
+  </div>
+  <script>
+    var recNo=1;
+    
+    // 測試資料
+    var names=['龔X萱','吳X伯','王X佑','洪X銘','許X伶','張X青','張X富','劉X禮','林X豪','連X翰',
+               '李X揚','梁X嘉','趙X如','莊X貴','王X哲','陳X剛','陳X孜','王X芸','謝X鴻','蔡X一',
+               '張X霖','羅X冰','蘇X鈞','胡X倩','盧X聖','林X聖','林X菁','柳X倫','林X佳','陳X婷',
+               '劉X穎','張X皓','林X佩','毛X婷','劉X軒','吳X雲','楊X帆','曾X云','杜X然','黃X平',
+               '劉X剛','朱X苓','林X人','陳X瑋','陳X弘','黃X映','張X南','李X秀','郭X良','詹X貞',
+               '鄭X斌','蕭X惠','賴X伯','鄭X德','林X音','林X偉','陳X珠','蘇X軒','邱X云','林X宏',
+               '陳X婷','王X傑','陳X羽','吳X軒','黃X銘','劉X火','連X桂','吳X來','曾X惠','丁X梅',
+               '張X源','何X倩','何X倫','余X倫','宋X純','曾X娟','陸X容','黃X蓮','王X育','賴X啟',
+               '陳X意','朱X琳','林X夫','袁X穎','阮X傑','李X宇','林X君','林X易','黃X榮','王X香',
+               '邱X文','曹X豪','許X昀','王X瑞','林X軒','林X伶','林X淳','楊X貞','陳X祥','王X玲'];
+    
+    function 新增測試資料(){
+      var pickAname = names[Math.floor(Math.random()*100)];
+      var rndWeight = (Math.random()*2 +2.5).toString().substr(0,4);
+      var rndHeight = (Math.random()*40 +40).toString().substr(0,4);
+      var rndBMI = rndWeight/((rndHeight/100)*(rndHeight/100));
+      var rndBMIStr = (Math.floor(rndBMI*100)/100).toString();
+      var recNoStr= recNo.toString();
+      var now = new Date(Date.now());
+      var nowStr =now.toLocaleString().substr(5,20);      
+      //console.log(pickAname, rndWeight);
+      var prependHtml = 
+//        '<li style="margin-top:10px" id=' + '"rec' + recNoStr + '"><button class="確定登錄按鈕' + 
+//        '" id="rb' + recNoStr + '" onClick="確定登錄按鈕('+ recNoStr +')" >確定登錄</button>'+
+//        '<span style="font-family:Noto Sans TC; font-size:18px">' + pickAname + '</span>' + '<span style="font-family:Noto Sans Mono; font-size:17px">' + 
+//        ':'+ rndWeight + 'KG ' + nowStr+ '</span>' + '</li>';
+      
+        '<div style="margin-top:10px" id=' + '"rec' + recNoStr + '"><button class="確定登錄按鈕' + 
+        '" id="rb' + recNoStr + '" onClick="確定登錄按鈕('+ recNoStr +')" >確定登錄</button>' +
+        '<span style="font-family:Noto Sans TC; font-size:18px; margin-left:0px">' + pickAname +
+        '<span style="font-family:Noto Sans Mono; font-size:18px"> '+ nowStr+ ' </span>' + 
+          
+        '</span>' + '<br><span style="font-family:Noto Sans Mono; font-size:14px; margin-left:0px">' + 
+        ' 體重:' + rndWeight + '公斤, 身高:' + rndHeight + '公分, BMI:' + rndBMIStr + ' </span>'+
+        '</div>';      
+      
+      recNo++;
+      
+      console.log(prependHtml);
+      
+      $("#量測記錄表").prepend(prependHtml);
+      
+    }
+    
+    var autoUpdateInterval;
+    新增測試資料();
+    autoUpdateInterval = setInterval('新增測試資料()', 5000);
+    
+    
+    function 切換自動更新() {
+      console.log("切換自動更新");
+      if ($("#autoUpdate").prop("checked")) {
+        $("#手動更新按鈕").hide();
+        autoUpdateInterval = setInterval('新增測試資料()', 5000);
+      } else {
+        $("#手動更新按鈕").show();
+        clearInterval(autoUpdateInterval);
+      }
+    }
+        
+    function 確定登錄按鈕(id){
+      var buttonStr = "#rb"+id.toString();
+      var listStr   = "#rec"+id.toString();
+      
+      // 若已登錄，直接 return
+      if ($(listStr).css('color') == 'rgb(0, 0, 0)') return;
+      
+      $(buttonStr).css("background-color", "transparent");
+      $(buttonStr).text("已經登錄");
+      //$(buttonStr).remove();
+      $(listStr).css('color', 'black');
+      //$(listStr).prepend('已登錄 - ');
+    }
+
+    function 清除已登錄量測記錄(){
+      var allRec=$("[id*=rec]")
+      for (i=0; i < allRec.length; i++){
+        if($(allRec[i]).css('color')!='rgb(255, 255, 255)'){
+          $(allRec[i]).remove();
+        }
+      }
+    }
+     
+    $('#手動更新按鈕').click(function(){
+      console.log("手動更新");
+      新增測試資料();
+    });    
+    
+    
+    
+  </script>
+<!--</div>-->
