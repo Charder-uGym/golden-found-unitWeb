@@ -237,8 +237,12 @@
               <span style="margin-left:30px" id ="ml-結束日期"> 結束日期 </span> 
               <input id="expQueryEndDate"   type='date' />
               
-              <button style="margin-left:30px" class="btn-gradient-primary font-weight-bold" onclick="checkExpirations()" >
-                <span id="ml-檢查">檢 查</span>
+              <button style="margin-left:30px" class="btn-gradient-primary font-weight-bold" onclick="prevReport()" >
+                <span id="ml-檢查">前一頁</span>
+              </button>              
+               
+              <button style="margin-left:30px" class="btn-gradient-primary font-weight-bold" onclick="nextReport()" >
+                <span id="ml-檢查">下一頁</span>
               </button>
             </div>
 
@@ -246,8 +250,16 @@
 
             <!-- Content Starts -->
             <div id="wrap">
+              <img id="LL" style="width:500px;position:absolute; top:200px;left:-500px; display:none" src="./1.jpg"/ alt="image">
+              <img id="LT" style="width:500px;position:absolute; top:200px;left:0px" src="./2.jpg"/ alt="image">
+              <img id="RT" style="width:500px;position:absolute; top:200px;left:520px" src="./3.jpg"/ alt="image">
+              <img id="RR" style="width:500px;position:absolute; top:200px;left:1020px; display:none" src="./4.jpg"/ alt="image">
+
+              
+<!--
               <img style="width:500px;margin-left:10px" src="./8IkmOZa.jpg"/ alt="image">    
               <img style="width:500px;margin-left:20px" src="./8IkmOZa.jpg"/ alt="image">    
+-->
               
             </div>        
             <!-- /Content End -->
@@ -483,20 +495,19 @@
       <!-- Main Start-->
       <script type="text/javascript"> 
         
-      var viewer = new ViewBigimg();
-      
-      //var wrap = document.getElementById('wrap');
-      var wrap = $("#wrap");
-      wrap[0].onclick = function (e) {
-        if (e.target.nodeName === 'IMG') {
-          // viewer.show(e.target.src.replace('.jpg', '-big.jpg'))
-          $("#heading").hide();
-          $("#sidebar").hide();          
-          viewer.show(e.target.src);
-        }
-      }
+        var viewer = new ViewBigimg();
 
-        
+        //var wrap = document.getElementById('wrap');
+        var wrap = $("#wrap");
+        wrap[0].onclick = function (e) {
+          if (e.target.nodeName === 'IMG') {
+            $("#heading").hide();
+            $("#sidebar").hide();          
+            viewer.show(e.target.src);
+          }
+        }
+
+        var pageNum=3; //RT page
         
         var today = new Date();
         
@@ -565,6 +576,48 @@
           } else {
             alert("Demo 版不支援")
           }
+        }
+
+        function prevReport(){
+          pageNum--;
+          $("#LL").attr("src",(pageNum-1).toString()+".jpg");           
+          $("#LT").attr("src",pageNum.toString()+".jpg");           
+          $("#RT").attr("src",(pageNum+1).toString()+".jpg");           
+          $("#LL").show();
+          $("#LT").css('z-index','100');
+          $("#RT").css('z-index','0');
+          
+          $("#LL").animate({left:0},1000);
+          $("#RT").animate({left:1020},1000);
+          $("#LT").animate({left:520},1000, function() {
+            $("#LT").attr("src",(pageNum-1).toString()+".jpg");
+            $("#RT").attr("src",pageNum.toString()+".jpg"); 
+            $("#LT").css('left','0px');
+            $("#RT").css('left','520px');
+            $("#LL").hide();            
+            $("#LL").css('left','-500px')    
+          });
+        }
+        
+        function nextReport(){ 
+          pageNum++;
+          $("#RR").attr("src",pageNum.toString()+".jpg"); 
+          $("#RT").attr("src",(pageNum-1).toString()+".jpg"); 
+          $("#LT").attr("src",(pageNum-2).toString()+".jpg"); 
+          $("#RR").show();
+          $("#LT").css('z-index','0');
+          $("#RT").css('z-index','100');
+          
+          $("#RR").animate({left:520},1000);
+          $("#LT").animate({left:-520},1000);
+          $("#RT").animate({left:0},1000, function() {
+            $("#LT").attr("src",(pageNum-1).toString()+".jpg");
+            $("#RT").attr("src",pageNum.toString()+".jpg"); 
+            $("#RT").css('left','520px');
+            $("#LT").css('left','0px');
+            $("#RR").hide();            
+            $("#RR").css('left','1020px')    
+          });
         }
         
         
