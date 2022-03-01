@@ -11,32 +11,28 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto Sans Mono">
  
   <div id="sidebar-menu" class="sidebar-menu">
-       
+
+    <a style="margin-left:20px; margin-top:0px; padding-top:0px; color:white; font-size:20px; font-weight:bold;display:none">量測記錄</a>
+
+    <button onClick="清除已登錄量測記錄()" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; margin-bottom:8px; margin-left:0px; vertical-align:middle; display:none">清除已登錄量測紀錄</button>                  
+
+    <a style="color:white; float:right; margin-right:10px; margin-top:2px; display:none"> 自動更新</a>
+    <input type="checkbox" id="autoUpdate" checked style="float:right; margin-right:5px; margin-top:5px; display:none" onClick="切換自動更新()">                    
+    <button id="手動更新按鈕" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; float:right; margin-right:5px; margin-top:0px; display:none">手動更新</button>
+
+
+
+    <nav style="color:white;margin-left:20px; margin-right:10px; height:703px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       
+      <ul id="量測記錄表" style="padding:10px">
+        <a id="使用說明">請登入系統後使用</a>
 <!--
-    <div style="font-size:10px; color:white; margin-top:50px;  margin-right:20px; text-align: right">
-      Web Tools V2.0 alpha
-    </div>
+          <li id="rb1"><button class="確定登錄按鈕" id="rec1" onClick="確定登錄按鈕(1)">確定登錄</button>林X文 4.75kg 10/29 下午2:43:39</li>  
+          <li id="rb1"><button class="確定登錄按鈕" id="rec2" onClick="確定登錄按鈕(2)">確定登錄</button>林X文 4.75kg 10/29 下午2:43:39</li>                  
 -->
-          <a style="margin-left:20px; margin-top:0px; padding-top:0px; color:white; font-size:20px; font-weight:bold;">量測記錄</a>
-          
-          <button onClick="清除已登錄量測記錄()" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; margin-bottom:8px; margin-left:0px; vertical-align:middle">清除已登錄量測紀錄</button>                  
-                 
-          <a style="color:white; float:right; margin-right:10px; margin-top:2px"> 自動更新</a>
-          <input type="checkbox" id="autoUpdate" checked style="float:right; margin-right:5px; margin-top:5px" onClick="切換自動更新()">                    
-          <button id="手動更新按鈕" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; float:right; margin-right:5px; margin-top:0px; display:none">手動更新</button>
-          
-           
-          
-          <nav style="color:white;margin-left:20px; margin-right:10px; height:703px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       
-            <ul id="量測記錄表" style="padding:10px">
-<!--
-                <li id="rb1"><button class="確定登錄按鈕" id="rec1" onClick="確定登錄按鈕(1)">確定登錄</button>林X文 4.75kg 10/29 下午2:43:39</li>  
-                <li id="rb1"><button class="確定登錄按鈕" id="rec2" onClick="確定登錄按鈕(2)">確定登錄</button>林X文 4.75kg 10/29 下午2:43:39</li>                  
--->
-            </ul>          
-          </nav>
-          
-          <a style="color:white; margin-left:20px; margin-top:10px">最佳使用解析度: 1920 x 1080</a>
+      </ul>          
+    </nav>
+
+    <a style="color:white; margin-left:20px; margin-top:10px">最佳使用解析度: 1920 x 1080</a>
 
   </div>
   <script>
@@ -88,8 +84,8 @@
     }
     
     var autoUpdateInterval;
-    新增測試資料();
-    autoUpdateInterval = setInterval('新增測試資料()', 5000);
+    //新增測試資料();
+    //autoUpdateInterval = setInterval('新增測試資料()', 5000);
     
     
     function 切換自動更新() {
