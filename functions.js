@@ -3,53 +3,13 @@ async function loadPages(){
   $("#heading").load("./HtmlPages/heading.html", function(){
     console.log("heading loaded");
     headingLoaded = true;
-    //if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));
-  });           
+  });   
+            
 
   $("#sidebar").load("./HtmlPages/sidebar.html", function(){
     console.log("sidebar loaded");
     sidebarLoaded = true;
-    $("#sidebar-contacts").addClass("active");
-    //if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));      
-
-    //$("#sidebar-check-expirations").hide(); //disable check expirarion function
   });
-
-  $("#rsv-page").load("./HtmlPages/rsvPage.html", function(){
-    console.log("rsv-page loaded");
-    rsvPageLoaded = true;
-    //if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));          
-  });
-
-  $("#expire-page").load("./HtmlPages/expirePage.html", function(){
-    console.log("expire-page loaded");
-    expirePageLoaded = true;
-    if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));          
-  });        
-
-  $("#query-sessions-page").load("./HtmlPages/sessionPage.html", function(){
-    console.log("session-page loaded");
-    sessionPageLoaded = true;
-    //if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));          
-  });        
-
-  $("#admissionFee-page").load("./HtmlPages/adminFeePage.html", function(){
-    console.log("admissionFee-page loaded");
-    adminFeePageLoaded = true;
-    //if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));          
-  });        
-
-  $("#product-page").load("./HtmlPages/productPage.html", function(){
-    console.log("product-page loaded");
-    productPageLoaded = true;
-    //if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));          
-  }); 
-  
-  $("#contract-page").load("./HtmlPages/contractPage.html", function(){
-    console.log("contract-page loaded");
-    contractPageLoaded = true;
-    //if (localStorage.getItem("lang")!=null) setLang(localStorage.getItem("lang"));          
-  });   
 
 }
 
@@ -168,9 +128,7 @@ function rsvCheck(){
 
       rsvDataTable.clear();
       rsvDataTable.rows.add(rsvResult).draw();
-      $.loading.end();
-      $("#ml-Sidebar-check-reservations").css("color", "#FBF279");                
-      $("#sidebar-check-reservations-icon").css("color", "#FBF279");                
+      $.loading.end();             
     },
 
     error: function() {
