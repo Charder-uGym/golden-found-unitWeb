@@ -155,10 +155,10 @@
             </div>
                         
             <div id="wrap">                              
-              <img id="LL" style="width:500px;position:absolute; top:120px;left:-300px; display:none" src="./1.jpg"/ alt="image">
-              <img id="LT" style="width:500px;position:absolute; top:120px;left:200px" src="./2.jpg"/ alt="image">
-              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px" src="./3.jpg"/ alt="image">
-              <img id="RR" style="width:500px;position:absolute; top:120px;left:1220px; display:none" src="./4.jpg"/ alt="image">              
+              <img id="LL" style="width:500px;position:absolute; top:120px;left:-300px; display:none" src="./noPrev.jpg"/ alt="image">
+              <img id="LT" style="width:500px;position:absolute; top:120px;left:200px" src="./noPrev.jpg"/ alt="image">
+              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px" src="./blank.jpg"/ alt="image">
+              <img id="RR" style="width:500px;position:absolute; top:120px;left:1220px; display:none" src="./noNext.jpg"/ alt="image">              
             </div>        
             <!-- /Content End -->
           </div>
@@ -406,7 +406,7 @@
         var 使用身高體重BMI=false;
         var 使用握力器=false;
 
-        var pageNum=3; //RT page
+        var RTreportIndex=0; //RT page
         
         var today = new Date();
         
@@ -459,7 +459,7 @@
             { targets: -1, 
               render: function (data, type, row, meta) {  
                 //console.log("***********", data);
-                return  `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick="alert(`+data+`)">`+'查看'+`</button>`;
+                return  `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick="showReport(`+data+`)">`+'查看'+`</button>`;
               },
             },                             
           ]           
@@ -500,7 +500,80 @@
           ]           
         } );
         
+        function showReport(index){
+          RTreportIndex = index;
+          
+          console.log(index);
+          $("#RT").attr("src", bodyCompositionResult[RTreportIndex][5]);
+          
+          //find prev two reports
+          //findPrev2Reports(RTreportIndex);
+          
+          //find next two reports
+          //findNext2Reports(RTreportIndex);
+        }
 
+        function findPrev2Reports(index){
+          console.log(index);
+          var retuenObj={
+            "prev1": {index:-1, imgPath:""},
+            "prev2": {index:-1, imgPath:""}          
+          };
+          var tmp;
+          var phoneNumber=bodyCompositionResult[index][2];
+          //console.log(phoneNumber);
+          for (var i=index-1; i>-1; i--) {
+            //console.log(bodyCompositionResult[i][2]);
+            if (bodyCompositionResult[i][2]==phoneNumber){
+              retuenObj.prev1.index=i;
+              retuenObj.prev1.imgPath=bodyCompositionResult[i][5];
+              tmp=i-1;
+              break;
+            }
+          }
+          if(tmp>-1) {
+            //console.log(tmp);
+            for (var i=tmp; i>-1; i--) {
+              if (bodyCompositionResult[i][2]==phoneNumber){
+                retuenObj.prev2.index=i;
+                retuenObj.prev2.imgPath=bodyCompositionResult[i][5];
+                break;
+              }
+            } 
+          }
+          return(retuenObj);
+        }
+        
+        function findNext2Reports(index){
+          console.log(index);
+          var retuenObj={
+            "next1": {index:-1, imgPath:""},
+            "next2": {index:-1, imgPath:""}          
+          };
+          var tmp;
+          var phoneNumber=bodyCompositionResult[index][2];
+          //console.log(phoneNumber);
+          for (var i=index+1; i<bodyCompositionResult.length; i++) {
+            //console.log(bodyCompositionResult[i][2]);
+            if (bodyCompositionResult[i][2]==phoneNumber){
+              retuenObj.next1.index=i;
+              retuenObj.next1.imgPath=bodyCompositionResult[i][5];
+              tmp=i+1;
+              break;
+            }
+          }
+          if(tmp<bodyCompositionResult.length) {
+            //console.log(tmp);
+            for (var i=tmp; i<bodyCompositionResult.length; i++) {
+              if (bodyCompositionResult[i][2]==phoneNumber){
+                retuenObj.next2.index=i;
+                retuenObj.next2.imgPath=bodyCompositionResult[i][5];
+                break;
+              }
+            } 
+          }
+          return(retuenObj);
+        }        
         
         //show_membership_page();
         //show_body_report_page();
@@ -701,10 +774,16 @@
         }
 
         function prevReport(){
-          pageNum--;
-          $("#LL").attr("src",(pageNum-1).toString()+".jpg");           
-          $("#LT").attr("src",pageNum.toString()+".jpg");           
-          $("#RT").attr("src",(pageNum+1).toString()+".jpg");           
+          var LLimgPath = $("#LL").attr("src");
+          var LTimgPath = $("#LT").attr("src");
+          var RTimgPath = $("#RT").attr("src");
+          var RRimgPath = $("#RR").attr("src");
+          
+          if(LTimgPath=="./noPrev.jpg") {
+            alert("前面已無資料");
+            return;
+          }
+        
           $("#LL").show();
           $("#LT").css('z-index','100');
           $("#RT").css('z-index','0');
@@ -712,8 +791,8 @@
           $("#LL").animate({left:200},1000);
           $("#RT").animate({left:1220},1000);
           $("#LT").animate({left:720},1000, function() {
-            $("#LT").attr("src",(pageNum-1).toString()+".jpg");
-            $("#RT").attr("src",pageNum.toString()+".jpg"); 
+            $("#LT").attr("src",LLimgPath);
+            $("#RT").attr("src",LTimgPath); 
             $("#LT").css('left','200px');
             $("#RT").css('left','720px');
             $("#LL").hide();            
@@ -722,10 +801,16 @@
         }
         
         function nextReport(){ 
-          pageNum++;
-          $("#RR").attr("src",pageNum.toString()+".jpg"); 
-          $("#RT").attr("src",(pageNum-1).toString()+".jpg"); 
-          $("#LT").attr("src",(pageNum-2).toString()+".jpg"); 
+          var LLimgPath = $("#LL").attr("src");
+          var LTimgPath = $("#LT").attr("src");
+          var RTimgPath = $("#RT").attr("src");
+          var RRimgPath = $("#RR").attr("src");
+          
+          if(RTimgPath=="./noNext.jpg") {
+            alert("後面已無資料");
+            return;
+          }
+ 
           $("#RR").show();
           $("#LT").css('z-index','0');
           $("#RT").css('z-index','100');
@@ -733,8 +818,8 @@
           $("#RR").animate({left:720},1000);
           $("#LT").animate({left:-300},1000);
           $("#RT").animate({left:200},1000, function() {
-            $("#LT").attr("src",(pageNum-1).toString()+".jpg");
-            $("#RT").attr("src",pageNum.toString()+".jpg"); 
+            $("#LT").attr("src", RTimgPath);
+            $("#RT").attr("src", RRimgPath); 
             $("#RT").css('left','720px');
             $("#LT").css('left','200px');
             $("#RR").hide();            
