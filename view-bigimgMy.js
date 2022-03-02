@@ -442,7 +442,7 @@ ImageViewer.prototype = {
     this.container.style.display = 'none'
     console.log("*********************")
     $("#heading").show();
-    $("#sidebar").show();
+    //$("#sidebar").show();
   },
   destroy () {
     window.removeEventListener('resize', this._resizeHandler)
