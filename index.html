@@ -458,8 +458,8 @@
           columnDefs: [
             { targets: -1, 
               render: function (data, type, row, meta) {  
-                //console.log("aaa", meta);
-                return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="show_measurements(`+meta.row+`)">`+'查看'+`</button>`;
+                //console.log("***********", data);
+                return  `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick="alert(`+data+`)">`+'查看'+`</button>`;
               },
             },                             
           ]           
@@ -482,7 +482,6 @@
           columnDefs: [
             { targets: -1, 
               render: function (data, type, row, meta) {  
-                //console.log("aaa", meta);
                 return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="show_measurements(`+meta.row+`)">`+'查看紀錄'+`</button>`;
               },
             },            
@@ -644,8 +643,9 @@
                   returnObj[i].量測簡要.使用者名字,
                   returnObj[i].量測簡要.使用者電話,
                   returnObj[i].量測簡要.HealthScore,
-                  returnObj[i].量測簡要.量測要求編號,
-                  returnObj[i].量測簡要.PicUrl                  
+                  //returnObj[i].量測簡要.量測要求編號,
+                  i,
+                  returnObj[i].量測簡要.PicUrl
                 ];
               }
               
