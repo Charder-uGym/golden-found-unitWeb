@@ -508,18 +508,18 @@
           RTreportIndex = index;
           console.log(index);
 
-          $(bodyCompositionTable.cells().nodes()).removeClass('highlight');
+          //$(bodyCompositionTable.cells().nodes()).removeClass('highlight');
           
-          for (var j=0; j<5; j++){
-          var tmpNodes=$(bodyCompositionTable.column(j).nodes());
-            for (var i=0; i<tmpNodes.length; i++){
-              //console.log(tmpNodes[i]._DT_CellIndex.row);
-              if (tmpNodes[i]._DT_CellIndex.row==index) {
-                $(tmpNodes[i]).addClass('highlight');
-                break;
-              }
-            }
-          }
+//          for (var j=0; j<5; j++){
+//          var tmpNodes=$(bodyCompositionTable.column(j).nodes());
+//            for (var i=0; i<tmpNodes.length; i++){
+//              //console.log(tmpNodes[i]._DT_CellIndex.row);
+//              if (tmpNodes[i]._DT_CellIndex.row==index) {
+//                $(tmpNodes[i]).addClass('highlight');
+//                break;
+//              }
+//            }
+//          }
           
           $("#RT").attr("src", bodyCompositionResult[RTreportIndex][5]);
           
