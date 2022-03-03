@@ -7,7 +7,7 @@
       var loginPwd="";
       // Configuratiion
       var experimental=false;
-      var local_api = false;
+      var local_api = true;
       
       if (local_api) {
         var apiUrlBase = "http://localhost:5000/";
@@ -95,7 +95,7 @@
             <div id="">                              
               <div class="login_form">
                 <form class="loginbox" autocomplete="off">
-                  <input placeholder="名字" type="text" id="username">
+                  <input placeholder="名字" type="text" id="username" value="admin">
                   <input placeholder="密碼" type="password" id="password">
                   <button onClick="login()" id="login_button">Login</button>
                 </form>
@@ -116,22 +116,25 @@
 
             <div style="margin-top: -20px">
               
-              <button style="margin-left:350px" class="btn-gradient-primary font-weight-bold" onclick="prevReport()" >
+              <button style="margin-left:180px" class="btn-gradient-primary font-weight-bold" onclick="prevReport()" >
                 <!--<i class='fa fa-chevron-left' aria-hidden='true' style="color:white"></i>-->
-                <span id="ml-身體組成前一筆">< 前一筆</span>
-              </button>              
-               
-              <button style="margin-left:450px" class="btn-gradient-primary font-weight-bold" onclick="nextReport()" >
-                <span id="ml-身體組成下一筆">下一筆 ></span>
+                <span id="ml-身體組成前一筆">前一筆</span>
+              </button>             
+              <label id="LTinfo" style="margin-left:10px; z-index:999"> 2022-02-08 20:36:24 Neil Hsu 健康分數:68.4 </label> 
+<!--              <label id="RTinfo" style="margin-left:80px"> 2022-02-08 20:36:24 河豚 健康分數:72 </label>               -->
+              <button style="float:right; margin-right:30px" class="btn-gradient-primary font-weight-bold" onclick="nextReport()" >
+                <span id="ml-身體組成下一筆">下一筆</span>
                 <!--<i class='fa fa-chevron-right' aria-hidden='true' style="color:white"></i>-->
               </button>
+              
+              <label id="RTinfo" style="float:right; margin-right:10px; z-index:999"> 2022-02-08 20:36:24 河豚 健康分數:72 </label>               
             </div>
 
             <!-- Page Header -->
 
             <!-- Content Starts -->
             <div style="margin-left: -450px; margin-top:8px; width:600px ">
-            <div id="會員資料表" class="row">
+            <div id="身體組成紀錄表" class="row">
               <div class="col-md-12">
                 <div class="card mb-0">
                   <div class="card-body">
@@ -156,8 +159,8 @@
                         
             <div id="wrap">                              
               <img id="LL" style="width:500px;position:absolute; top:120px;left:-300px; display:none" src="./noPrev.jpg"/ alt="image">
-              <img id="LT" style="width:500px;position:absolute; top:120px;left:200px" src="./noPrev.jpg"/ alt="image">
-              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px" src="./blank.jpg"/ alt="image">
+              <img id="LT" style="width:500px;position:absolute; top:120px;left:200px; z-index:0" src="./blank.jpg"/ alt="image">
+              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px; z-index:0" src="./blank.jpg"/ alt="image">
               <img id="RR" style="width:500px;position:absolute; top:120px;left:1220px; display:none" src="./noNext.jpg"/ alt="image">              
             </div>        
             <!-- /Content End -->
@@ -437,7 +440,7 @@
           }
         }        
         
-        
+        $("#password").focus();
 
 //        $("#rsvQueryStartDate").val(today.toISOString().substr(0,10)); 
 //        $("#rsvQueryEndDate").val(today.toISOString().substr(0,10));           $("#expQueryStartDate").val(today.toISOString().substr(0,10)); 
@@ -453,12 +456,13 @@
 
           ],            
           order: [[ 0, "desc" ]],
+          select: true,
           data: bodyCompositionResult,    
           pageLength: 8,
           columnDefs: [
             { targets: -1, 
               render: function (data, type, row, meta) {  
-                //console.log("***********", data);
+                //console.log("***********", type);
                 return  `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick="showReport(`+data+`)">`+'查看'+`</button>`;
               },
             },                             
@@ -502,9 +506,35 @@
         
         function showReport(index){
           RTreportIndex = index;
-          
           console.log(index);
+
+          $(bodyCompositionTable.cells().nodes()).removeClass('highlight');
+          
+          for (var j=0; j<5; j++){
+          var tmpNodes=$(bodyCompositionTable.column(j).nodes());
+            for (var i=0; i<tmpNodes.length; i++){
+              //console.log(tmpNodes[i]._DT_CellIndex.row);
+              if (tmpNodes[i]._DT_CellIndex.row==index) {
+                $(tmpNodes[i]).addClass('highlight');
+                break;
+              }
+            }
+          }
+          
           $("#RT").attr("src", bodyCompositionResult[RTreportIndex][5]);
+          
+          var tmpInfoStr = bodyCompositionResult[RTreportIndex][0]+" "+
+                           bodyCompositionResult[RTreportIndex][1]+ //.substr(0,10)+
+                           " <b>健康分數:</b><span style='font-size:28px'>"+
+                           bodyCompositionResult[RTreportIndex][3]+"</span>";
+          $("#RTinfo").html(tmpInfoStr);
+          
+
+              tmpInfoStr = bodyCompositionResult[RTreportIndex][0]+" "+
+                           bodyCompositionResult[RTreportIndex][1]+ //.substr(0,10)+
+                           " <b>健康分數:</b><span style='font-size:28px'>"+
+                           bodyCompositionResult[RTreportIndex][3]+"</span>";
+          $("#LTinfo").html(tmpInfoStr);          
           
           //find prev two reports
           //findPrev2Reports(RTreportIndex);
@@ -662,6 +692,7 @@
         function logout(){
           客戶名稱="";
           show_login_page();
+          $("#password").focus();
           //$("#username").val("");
           $("#password").val("");          
           $("#ml-登入單位").hide();
@@ -724,21 +755,9 @@
               
               //console.log(bodyCompositionResult);
               bodyCompositionTable.clear();
-              bodyCompositionTable.rows.add(bodyCompositionResult).draw();              
-              
-//              memberResult = returnData;
-//
-//              for (i=0; i< memberResult.length; i++){
-//                memberResult[i][4] = memberResult[i][3].substr(11,5)+'~'+memberResult[i][4].substr(11,5);
-//                memberResult[i][3] = memberResult[i][3].substr(0,10);
-//              }
-//
-//
-//              memberTable.clear();
-//              memberTable.rows.add(memberResult).draw();
-//              $.loading.end();
-//              $("#ml-Sidebar-check-reservations").css("color", "#FBF279");                
-//              $("#sidebar-check-reservations-icon").css("color", "#FBF279");                
+              bodyCompositionTable.rows.add(bodyCompositionResult).draw();  
+              showReport(bodyCompositionResult.length-1);
+               
             },
 
             error: function(e) {
@@ -785,8 +804,8 @@
           }
         
           $("#LL").show();
-          $("#LT").css('z-index','100');
-          $("#RT").css('z-index','0');
+//          $("#LT").css('z-index','100');
+//          $("#RT").css('z-index','0');
           
           $("#LL").animate({left:200},1000);
           $("#RT").animate({left:1220},1000);
@@ -806,14 +825,14 @@
           var RTimgPath = $("#RT").attr("src");
           var RRimgPath = $("#RR").attr("src");
           
-          if(RTimgPath=="./noNext.jpg") {
+          if(RRimgPath=="./noNext.jpg") {
             alert("後面已無資料");
             return;
           }
  
           $("#RR").show();
-          $("#LT").css('z-index','0');
-          $("#RT").css('z-index','100');
+//          $("#LT").css('z-index','0');
+//          $("#RT").css('z-index','100');
           
           $("#RR").animate({left:720},1000);
           $("#LT").animate({left:-300},1000);

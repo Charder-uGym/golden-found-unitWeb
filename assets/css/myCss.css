@@ -25,6 +25,11 @@
   border-radius:5px;  
 }
 
+td.highlight {
+    background-color: black !important;
+    color: white !important;
+}
+
 .login_form {
   position: absolute;
   top: 50%;
