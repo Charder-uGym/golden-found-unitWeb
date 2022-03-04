@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <script> 
-      var 版本="v0.92";
+      var 版本="v0.93";
       
       // login
       var loginUnit="";
@@ -162,8 +162,8 @@
                         
             <div id="wrap">                              
               <img id="LL" style="width:500px;position:absolute; top:120px;left:-300px; display:none" src="./noPrev.jpg"/ alt="image">
-              <img id="LT" style="width:500px;position:absolute; top:120px;left:200px; z-index:0" src="./blank.jpg"/ alt="image">
-              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px; z-index:0" src="./noNext.jpg"/ alt="image">
+              <img id="LT" style="width:500px;position:absolute; top:120px;left:200px; z-index:0" src="./blank.jpg"/ alt="此報告缺失圖片">
+              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px; z-index:0" src="./noNext.jpg"/ alt="此報告缺失圖片">
               <img id="RR" style="width:500px;position:absolute; top:120px;left:1220px; display:none" src="./noNext.jpg"/ alt="image">              
             </div>        
             <!-- /Content End -->
@@ -765,12 +765,10 @@
                 var thisUser=returnObj[i].量測簡要.使用者名字;
                 
                 //處理重複的報告
-                if ((measureTime==prevTime) && (thisUser==prevUser)){
-                  console.log(measureTime);                  
+                if ((measureTime==prevTime) && (thisUser==prevUser)){             
                   var repeatDateTime= new Date(measureTime);
                   var repeatTimestamp = repeatDateTime.getTime() +1000;
                   measureTime = dateTimeConv(repeatTimestamp).substr(0,19);
-                  console.log(measureTime);
                 }
                 bodyCompositionResult[i] = [
                   //dateTimeConv(returnObj[i].量測簡要.量測時間).substr(0,19),
