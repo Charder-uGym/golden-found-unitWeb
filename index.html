@@ -459,7 +459,7 @@
             { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
 
           ],            
-          order: [[ 0, "desc" ]],
+          order: [[ 0, "desc" ], [ 4, "desc" ] ],
           select: true,
           data: bodyCompositionResult,    
           pageLength: 8,
@@ -543,6 +543,7 @@
             $("#RTinfo").html(RTInfoStr);            
           } else {
             $("#RT").attr("src", "./noNext.jpg");
+            $("#RTinfo").html("");  
           }
           
           if(nextReports.next2.index>-1){
@@ -750,14 +751,27 @@
                 console.log(returnObj.length, returnObj[0].量測簡要)
               }
                 
-            
+              var prevTime="";
+              var prevUser="";
               for (var i=0; i<returnObj.length; i++) {
                 //var createDate=new Date(returnObj[i].量測簡要.量測時間);
                 
                 if(returnObj[i].量測簡要.使用者名字==undefined) returnObj[i].量測簡要.使用者名字="無名氏";
                 
+                var measureTime=dateTimeConv(returnObj[i].量測簡要.量測時間).substr(0,19);
+                var thisUser=returnObj[i].量測簡要.使用者名字;
+                
+                //處理重複的報告
+                if ((measureTime==prevTime) && (thisUser==prevUser)){
+                  console.log(measureTime);                  
+                  var repeatDateTime= new Date(measureTime);
+                  var repeatTimestamp = repeatDateTime.getTime() +1000;
+                  measureTime = dateTimeConv(repeatTimestamp).substr(0,19);
+                  console.log(measureTime);
+                }
                 bodyCompositionResult[i] = [
-                  dateTimeConv(returnObj[i].量測簡要.量測時間).substr(0,19),
+                  //dateTimeConv(returnObj[i].量測簡要.量測時間).substr(0,19),
+                  measureTime,
                   returnObj[i].量測簡要.使用者名字,
                   returnObj[i].量測簡要.使用者電話,
                   returnObj[i].量測簡要.HealthScore,
@@ -765,6 +779,9 @@
                   i,
                   returnObj[i].量測簡要.PicUrl
                 ];
+                
+                prevTime = measureTime;
+                prevUser = returnObj[i].量測簡要.使用者名字;
               }
               
               //console.log(bodyCompositionResult);
