@@ -116,24 +116,24 @@
 
             <div style="margin-top: -20px">
               
-              <button style="margin-left:180px" class="btn-gradient-primary font-weight-bold" onclick="prevReport()" >
-                <!--<i class='fa fa-chevron-left' aria-hidden='true' style="color:white"></i>-->
+<!--              <button style="margin-left:180px" class="btn-gradient-primary font-weight-bold" onclick="prevReport()" >-->
+              <button style="position:absolute; top:70px; left:200px" class="btn-gradient-primary font-weight-bold" onclick="prevReport()" >
                 <span id="ml-身體組成前一筆">前一筆</span>
               </button>             
-              <label id="LTinfo" style="margin-left:10px; z-index:999"> 2022-02-08 20:36:24 Neil Hsu 健康分數:68.4 </label> 
-<!--              <label id="RTinfo" style="margin-left:80px"> 2022-02-08 20:36:24 河豚 健康分數:72 </label>               -->
-              <button style="float:right; margin-right:30px" class="btn-gradient-primary font-weight-bold" onclick="nextReport()" >
+              <label id="LTinfo" style="position:absolute; top:70px; left:270px;"></label> 
+
+              <button style="position:absolute; top:70px; left:1158px" class="btn-gradient-primary font-weight-bold" onclick="nextReport()" >
                 <span id="ml-身體組成下一筆">下一筆</span>
-                <!--<i class='fa fa-chevron-right' aria-hidden='true' style="color:white"></i>-->
               </button>
               
-              <label id="RTinfo" style="float:right; margin-right:10px; z-index:999"> 2022-02-08 20:36:24 河豚 健康分數:72 </label>               
+              <label id="RTinfo" style="position:absolute; top:70px; left:720px;"></label>               
             </div>
 
             <!-- Page Header -->
 
             <!-- Content Starts -->
-            <div style="margin-left: -450px; margin-top:8px; width:600px ">
+<!--            <div style="margin-left: -450px; margin-top:8px; width:600px ">-->
+            <div style="position:absolute; top:120px;left:-430px; width:600px ">
             <div id="身體組成紀錄表" class="row">
               <div class="col-md-12">
                 <div class="card mb-0">
@@ -160,7 +160,7 @@
             <div id="wrap">                              
               <img id="LL" style="width:500px;position:absolute; top:120px;left:-300px; display:none" src="./noPrev.jpg"/ alt="image">
               <img id="LT" style="width:500px;position:absolute; top:120px;left:200px; z-index:0" src="./blank.jpg"/ alt="image">
-              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px; z-index:0" src="./blank.jpg"/ alt="image">
+              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px; z-index:0" src="./noNext.jpg"/ alt="image">
               <img id="RR" style="width:500px;position:absolute; top:120px;left:1220px; display:none" src="./noNext.jpg"/ alt="image">              
             </div>        
             <!-- /Content End -->
@@ -409,7 +409,11 @@
         var 使用身高體重BMI=false;
         var 使用握力器=false;
 
-        var RTreportIndex=0; //RT page
+        var LLindex=-1;
+        var LTindex=-1;
+        var RTindex=-1;
+        var RRindex=-1;
+        
         
         var today = new Date();
         
@@ -463,7 +467,7 @@
             { targets: -1, 
               render: function (data, type, row, meta) {  
                 //console.log("***********", type);
-                return  `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick="showReport(`+data+`)">`+'查看'+`</button>`;
+                return  `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick="showReport(`+data+`)">`+'查看報告'+`</button>`;
               },
             },                             
           ]           
@@ -505,42 +509,50 @@
         } );
         
         function showReport(index){
-          RTreportIndex = index;
+          LTindex = index;
+          
           console.log(index);
-
-          //$(bodyCompositionTable.cells().nodes()).removeClass('highlight');
+        
+          var prevReports = findPrev2Reports(index);
+          var nextReports = findNext2Reports(index);
           
-//          for (var j=0; j<5; j++){
-//          var tmpNodes=$(bodyCompositionTable.column(j).nodes());
-//            for (var i=0; i<tmpNodes.length; i++){
-//              //console.log(tmpNodes[i]._DT_CellIndex.row);
-//              if (tmpNodes[i]._DT_CellIndex.row==index) {
-//                $(tmpNodes[i]).addClass('highlight');
-//                break;
-//              }
-//            }
-//          }
+          console.log(prevReports, nextReports);
+                    
+          if(prevReports.prev1.index>-1){
+            $("#LL").attr("src", prevReports.prev1.imgPath);
+            LLindex=prevReports.prev1.index;
+          } else {
+            $("#LL").attr("src", "./noPrev.jpg");            
+          }
           
-          $("#RT").attr("src", bodyCompositionResult[RTreportIndex][5]);
+          $("#LT").attr("src", bodyCompositionResult[LTindex][5]);
           
-          var tmpInfoStr = bodyCompositionResult[RTreportIndex][0]+" "+
-                           bodyCompositionResult[RTreportIndex][1]+ //.substr(0,10)+
+          var LTInfoStr = bodyCompositionResult[LTindex][0]+" "+
+                           bodyCompositionResult[LTindex][1]+ //.substr(0,10)+
                            " <b>健康分數:</b><span style='font-size:28px'>"+
-                           bodyCompositionResult[RTreportIndex][3]+"</span>";
-          $("#RTinfo").html(tmpInfoStr);
+                           bodyCompositionResult[LTindex][3]+"</span>";
+          $("#LTinfo").html(LTInfoStr);  
           
-
-              tmpInfoStr = bodyCompositionResult[RTreportIndex][0]+" "+
-                           bodyCompositionResult[RTreportIndex][1]+ //.substr(0,10)+
-                           " <b>健康分數:</b><span style='font-size:28px'>"+
-                           bodyCompositionResult[RTreportIndex][3]+"</span>";
-          $("#LTinfo").html(tmpInfoStr);          
+          if(nextReports.next1.index>-1){
+            $("#RT").attr("src", nextReports.next1.imgPath);
+            RTindex = nextReports.next1.index;
+            var RTInfoStr = bodyCompositionResult[nextReports.next1.index][0]+" "+
+                             bodyCompositionResult[nextReports.next1.index][1]+ //.substr(0,10)+
+                             " <b>健康分數:</b><span style='font-size:28px'>"+
+                             bodyCompositionResult[nextReports.next1.index][3]+"</span>";
+            $("#RTinfo").html(RTInfoStr);            
+          } else {
+            $("#RT").attr("src", "./noNext.jpg");
+          }
           
-          //find prev two reports
-          //findPrev2Reports(RTreportIndex);
+          if(nextReports.next2.index>-1){
+            $("#RR").attr("src", nextReports.next2.imgPath);
+            RRindex = nextReports.next1.index;            
+          } else {
+            $("#RR").attr("src", "./noNext.jpg");
+          }
+                
           
-          //find next two reports
-          //findNext2Reports(RTreportIndex);
         }
 
         function findPrev2Reports(index){
@@ -646,6 +658,8 @@
 
             error: function(e) {
               $.loading.end();
+              alert("登入失敗，請檢查網路!")
+              $("#password").val("");
               console.log("error", e);
               databaseErr=true;
             }
@@ -756,7 +770,8 @@
               //console.log(bodyCompositionResult);
               bodyCompositionTable.clear();
               bodyCompositionTable.rows.add(bodyCompositionResult).draw();  
-              showReport(bodyCompositionResult.length-1);
+              
+              //showReport(bodyCompositionResult.length-1);
                
             },
 
@@ -798,24 +813,21 @@
           var RTimgPath = $("#RT").attr("src");
           var RRimgPath = $("#RR").attr("src");
           
-          if(LTimgPath=="./noPrev.jpg") {
+          if(LLimgPath=="./noPrev.jpg") {
             alert("前面已無資料");
             return;
           }
         
           $("#LL").show();
-//          $("#LT").css('z-index','100');
-//          $("#RT").css('z-index','0');
           
           $("#LL").animate({left:200},1000);
           $("#RT").animate({left:1220},1000);
           $("#LT").animate({left:720},1000, function() {
-            $("#LT").attr("src",LLimgPath);
-            $("#RT").attr("src",LTimgPath); 
             $("#LT").css('left','200px');
             $("#RT").css('left','720px');
             $("#LL").hide();            
-            $("#LL").css('left','-300px')    
+            $("#LL").css('left','-300px')  
+            showReport(LLindex);            
           });
         }
         
@@ -831,18 +843,15 @@
           }
  
           $("#RR").show();
-//          $("#LT").css('z-index','0');
-//          $("#RT").css('z-index','100');
           
           $("#RR").animate({left:720},1000);
           $("#LT").animate({left:-300},1000);
           $("#RT").animate({left:200},1000, function() {
-            $("#LT").attr("src", RTimgPath);
-            $("#RT").attr("src", RRimgPath); 
             $("#RT").css('left','720px');
             $("#LT").css('left','200px');
             $("#RR").hide();            
-            $("#RR").css('left','1220px')    
+            $("#RR").css('left','1220px') 
+            showReport(RTindex);
           });
         }
         
