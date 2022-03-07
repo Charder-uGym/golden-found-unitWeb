@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <script> 
-      var 版本="v0.94";
+      var 版本="v0.95";
       
       // login
       var loginUnit="";
@@ -120,7 +120,7 @@
             <div style="margin-top: -20px">
              
               <div id="更新section" style="display:none">
-                <button id="更新資料" style="position:absolute; top:70px; left:-408px" class="btn-gradient-primary font-weight-bold" onclick="updateResports()" >
+                <button id="更新資料" style="position:absolute; top:70px; left:-408px" class="btn-gradient-primary font-weight-bold" onclick="updateReports()" >
                   <span id="ml-更新資料">更新資料 </span>
                 </button>             
                 <label id="更新資料筆數" style="position:absolute; top:80px; left:-320px;">有新量測資料，請點擊 更新資料 按鈕進行更新</label> 
@@ -855,7 +855,7 @@
           }
         }
 
-        function updateResports(){
+        function updateReports(){
           //alert("Update reports from: "+bodyCompositionResult.length.toString()+" to: "+newRecNum.toString());
 
           //以下測試比較麻煩，需要動到 Firebase realtime DB
