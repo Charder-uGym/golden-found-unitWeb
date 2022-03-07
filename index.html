@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <script> 
-      var 版本="v0.93";
+      var 版本="v0.94";
       
       // login
       var loginUnit="";
@@ -118,24 +118,29 @@
           <div class="content container-fluid">
 
             <div style="margin-top: -20px">
-              
-<!--              <button style="margin-left:180px" class="btn-gradient-primary font-weight-bold" onclick="prevReport()" >-->
+             
+              <div id="更新section" style="display:none">
+                <button id="更新資料" style="position:absolute; top:70px; left:-408px" class="btn-gradient-primary font-weight-bold" onclick="updateResports()" >
+                  <span id="ml-更新資料">更新資料 </span>
+                </button>             
+                <label id="更新資料筆數" style="position:absolute; top:80px; left:-320px;">有新量測資料，請點擊 更新資料 按鈕進行更新</label> 
+              </div>                          
+
               <button style="position:absolute; top:70px; left:200px" class="btn-gradient-primary font-weight-bold" onclick="prevReport()" >
                 <span id="ml-身體組成前一筆">前一筆</span>
               </button>             
-              <label id="LTinfo" style="position:absolute; top:70px; left:270px;"></label> 
+              <label id="LTinfo" style="position:absolute; top:65px; left:270px;"></label> 
 
               <button style="position:absolute; top:70px; left:1158px" class="btn-gradient-primary font-weight-bold" onclick="nextReport()" >
                 <span id="ml-身體組成下一筆">下一筆</span>
               </button>
               
-              <label id="RTinfo" style="position:absolute; top:70px; left:720px;"></label>               
+              <label id="RTinfo" style="position:absolute; top:65px; left:720px;"></label>               
             </div>
 
             <!-- Page Header -->
 
             <!-- Content Starts -->
-<!--            <div style="margin-left: -450px; margin-top:8px; width:600px ">-->
             <div style="position:absolute; top:120px;left:-430px; width:600px ">
             <div id="身體組成紀錄表" class="row">
               <div class="col-md-12">
@@ -162,8 +167,8 @@
                         
             <div id="wrap">                              
               <img id="LL" style="width:500px;position:absolute; top:120px;left:-300px; display:none" src="./noPrev.jpg"/ alt="image">
-              <img id="LT" style="width:500px;position:absolute; top:120px;left:200px; z-index:0" src="./blank.jpg"/ alt="此報告缺失圖片">
-              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px; z-index:0" src="./noNext.jpg"/ alt="此報告缺失圖片">
+              <img id="LT" style="width:500px;position:absolute; top:120px;left:200px; z-index:0" src="./blank.jpg"/ alt="此報告無法顯示圖片">
+              <img id="RT" style="width:500px;position:absolute; top:120px;left:720px; z-index:0" src="./noNext.jpg"/ alt="此報告無法顯示圖片">
               <img id="RR" style="width:500px;position:absolute; top:120px;left:1220px; display:none" src="./noNext.jpg"/ alt="image">              
             </div>        
             <!-- /Content End -->
@@ -277,7 +282,7 @@
         </div>
         <!-- /Page Wrapper -->
 
-        <!-- Page Wrapper -->
+        <!-- Page Wrapper 沒被使用，留作參考-->
         <div class="page-wrapper" id="expire-page" style="display:none">
 
           <!-- Page Content -->               
@@ -388,11 +393,6 @@
       <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  -->
       <script src="assets/js/chart3.6.0.js"></script>  
 
-      <!-- pdfmake 支援中文字型比較麻煩，不先用
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-      -->
-
       <!-- HTML5 export buttons for Buttons and DataTables. 2016 SpryMedia Ltd - datatables.net/license
       FileSaver.js (1.3.3) - MIT license Copyright © 2016 Eli Grey - http://eligrey.com -->
       <script src="assets/js/buttons.html5.min.js  "></script>
@@ -407,18 +407,16 @@
       <!-- Main Start-->
       <script type="text/javascript"> 
         
+        //登入的客戶名稱
         var 客戶名稱;
-        var 使用身體組成=false;
-        var 使用身高體重BMI=false;
-        var 使用握力器=false;
+        
+        //客戶使用的設備
+        var 使用身體組成=false; var 使用身高體重BMI=false; var 使用握力器=false;
 
-        var LLindex=-1;
-        var LTindex=-1;
-        var RTindex=-1;
-        var RRindex=-1;
+        //身體組成圖片 index
+        var LLindex=-1; var LTindex=-1; var RTindex=-1; var RRindex=-1;
         
-        
-        var today = new Date();
+        //var today = new Date();
         
         var contractSessionHistory={};
         var courseSettings={};
@@ -430,6 +428,8 @@
         var query_sessions_is_load = false;
 
         var bodyCompositionResult=[];
+        var newRecNum=0;
+        var updateInterval;
         var memberResult=[];
         var expResult=[];
         var querySessionsResult=[];
@@ -448,12 +448,6 @@
         }        
         
         $("#password").focus();
-
-//        $("#rsvQueryStartDate").val(today.toISOString().substr(0,10)); 
-//        $("#rsvQueryEndDate").val(today.toISOString().substr(0,10));           $("#expQueryStartDate").val(today.toISOString().substr(0,10)); 
-//        $("#expQueryEndDate").val(today.toISOString().substr(0,10)); 
-//        $("#sessionQueryStartDate").val(today.toISOString().substr(0,10)); 
-//        $("#sessionQueryEndDate").val(today.toISOString().substr(0,10));         
 
         var bodyCompositionTable =$('#身體組成紀錄').DataTable( {
           dom: 'Bfrtip',
@@ -633,6 +627,14 @@
             return;
           }
           
+          // reset LL/LT/RT/RR
+          $("#LL").attr("src", "./noPrev.jpg");
+          $("#LT").attr("src", "./blank.jpg");
+          $("#LTinfo").text("");
+          $("#RTinfo").text("");            
+          $("#RT").attr("src", "./noNext.jpg");  
+          $("#RR").attr("src", "./noNext.jpg");          
+                
           // call API for checking username/password
           $.loading.start('讀取資料');
           var noMatch=false;
@@ -701,7 +703,19 @@
             $("#ml-登出").show();
             read身體組成資料();
             show_body_report_page();
-            //show_membership_page();
+            
+            //設定 timer 固定檢查身體組成是否有新資料
+            updateInterval = setInterval( async function () {
+              //console.log("check new data");
+              newRecNum = await read身體組成資料比數();
+              console.log(newRecNum);
+              
+              if (newRecNum > bodyCompositionResult.length) {
+                $("#更新section").show();
+              }                           
+            }, 6000); // use 60000 as interval for production
+            
+            
           } else if (使用身高體重BMI) {
           } else if (使用握力器) {
           }
@@ -719,7 +733,9 @@
           客戶名稱="";
           使用身體組成=false;    $("#ml-握力資料").hide();
           使用身高體重BMI=false; $("#ml-身高體重BMI").hide();
-          使用握力器=false;     $("#ml-握力資料").hide();           
+          使用握力器=false;     $("#ml-握力資料").hide();   
+          
+          clearInterval(updateInterval);
         }
         
         function dateTimeConv(timestamp){
@@ -729,6 +745,20 @@
           tmpStr=tmpStr.replace('Z','');
           return(tmpStr);
           
+        }
+        
+        async function read身體組成資料比數() {
+          var recNum=0;
+          apiUrl = apiUrlBase+"?API=10&Unit="+客戶名稱+"&MeasureType=身體組成";
+          await fetch(apiUrl)
+          .then(function(response) { 
+            return(response.text());
+          })
+          .then(function(result) {
+            recNum=parseInt(result);
+          });  
+          
+          return(recNum);
         }
         
         async function read身體組成資料(){
@@ -825,6 +855,16 @@
           }
         }
 
+        function updateResports(){
+          //alert("Update reports from: "+bodyCompositionResult.length.toString()+" to: "+newRecNum.toString());
+
+          //以下測試比較麻煩，需要動到 Firebase realtime DB
+          read身體組成資料();
+          newRecNum = bodyCompositionResult.length;
+
+          $("#更新section").hide();
+        }
+        
         function prevReport(){
           var LLimgPath = $("#LL").attr("src");
           var LTimgPath = $("#LT").attr("src");
@@ -873,7 +913,7 @@
           });
         }
         
-        
+        // Chart demo
         var ctxW;
         var ctxH;
         var ctxB;
@@ -994,7 +1034,6 @@
           }
         }        
 
-
         
         function queryMermbers(){
           
@@ -1017,464 +1056,15 @@
           memberTable.clear();
           memberTable.rows.add(memberResult).draw();
           
-          return 
-          //
-          
-          var startDateStr = $("#rsvQueryStartDate").val();
-          var endDateStr = $("#rsvQueryEndDate").val();
-
-          console.log(startDateStr, endDateStr);
-
-          var apiUrl = apiUrlBase + "?API=00" + "&StartDate=" + startDateStr +"&EndDate=" + endDateStr;
-
-          //console.log(apiUrl);
-
-          $.loading.start('讀取資料');
-          $.ajax({
-            url: apiUrl,
-            type: "GET",
-            dataType: "json",
-            success: function(returnData) {
-              //returnFromAPI = JSON.parse(JSON.stringify(returnData));
-              //console.log(returnFromAPI[0][3]);
-
-              memberResult = returnData;
-
-              for (i=0; i< memberResult.length; i++){
-                memberResult[i][4] = memberResult[i][3].substr(11,5)+'~'+memberResult[i][4].substr(11,5);
-                memberResult[i][3] = memberResult[i][3].substr(0,10);
-              }
-
-              console.log(memberResult);
-              
-              memberTable.clear();
-              memberTable.rows.add(memberResult).draw();
-              $.loading.end();              
-            },
-
-            error: function() {
-              alert("Database READ ERROR!!!");
-            }
-          });             
-        }        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        //以下目前沒用，先保留
-        
-
-        var expirationsTable  =$('#expirations').DataTable( {
-          dom: 'Bfrtip',
-          buttons: [
-            { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
-            { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
-          ],
-          order: [[ 5, "asc" ]],
-          data: expResult,
-          columnDefs: [                  
-          ]           
-        } );
-
-        var querySessionsTable  =$('#query-sessions').DataTable( {
-          dom: 'Bfrtip',
-          buttons: [
-            { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
-            { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
-          ],
-          order: [[ 2, "asc" ], [ 0, "asc" ], [ 1, "asc" ]],
-          data: querySessionsResult,
-          columnDefs: [ 
-            {
-              targets: [12,13,14,16,20,22,23,24,25,26,27,28,29],
-              render: $.fn.dataTable.render.number(',', '.', 2),
-              className: 'number-to-right'
-            },
-            {
-              targets: [8,17,18,19,21],
-              className: 'number-to-right'
-            }            
-          ]           
-        } );
-        
-        function show_expire_page(){
-          $(".page-wrapper").hide();
-          $(".sidebar-item").css("color","white")
-
-          $("#expire-page").show();   
-          //$("#ml-Sidebar-check-reservations").css("color", "white");                      
-          $("#ml-Sidebar-check-expirations").css("color", "#FBF279");
-          //$("#sidebar-check-reservations-icon").css("color", "white");              
-          //$("#sidebar-check-expirations-icon").css("color", "#FBF279");
-          if (!expire_is_loaded) {
-            checkExpirations();
-            expire_is_loaded = true;     
-          }
-        } 
-
-        function show_query_sessions_page(){
-          $(".page-wrapper").hide();
-          $(".sidebar-item").css("color","white")
-
-          $("#query-sessions-page").show();   
-          //$("#ml-Sidebar-check-reservations").css("color", "white");                      
-          $("#ml-Sidebar-query-sessions").css("color", "#FBF279");
-          if (!query_sessions_is_load) {
-            querySessions();
-            query_sessions_is_load = true;     
-          }
-        }            
-
-        function checkReservations(){
-          
-          //測試
-          var names=['龔X萱','吳X伯','王X佑','洪X銘','許X伶','張X青','張X富','劉X禮','林X豪','連X翰',
-                     '李X揚','梁X嘉','趙X如','莊X貴','王X哲','陳X剛','陳X孜','王X芸','謝X鴻','蔡X一',
-                     '張X霖','羅X冰','蘇X鈞','胡X倩','盧X聖','林X聖','林X菁','柳X倫','林X佳','陳X婷',
-                     '劉X穎','張X皓','林X佩','毛X婷','劉X軒','吳X雲','楊X帆','曾X云','杜X然','黃X平',
-                     '劉X剛','朱X苓','林X人','陳X瑋','陳X弘','黃X映','張X南','李X秀','郭X良','詹X貞',
-                     '鄭X斌','蕭X惠','賴X伯','鄭X德','林X音','林X偉','陳X珠','蘇X軒','邱X云','林X宏',
-                     '陳X婷','王X傑','陳X羽','吳X軒','黃X銘','劉X火','連X桂','吳X來','曾X惠','丁X梅',
-                     '張X源','何X倩','何X倫','余X倫','宋X純','曾X娟','陸X容','黃X蓮','王X育','賴X啟',
-                     '陳X意','朱X琳','林X夫','袁X穎','阮X傑','李X宇','林X君','林X易','黃X榮','王X香',
-                     '邱X文','曹X豪','許X昀','王X瑞','林X軒','林X伶','林X淳','楊X貞','陳X祥','王X玲'];          
-          for (var i=0;i<20; i+=2) {
-            memberResult[i]=['ID'+i.toString().padStart(8, '0'),names[i],'男',names[i].substr(0,2)+"X",'','',true,];
-            memberResult[i+1]=['ID'+(i+1).toString().padStart(8,'0'),names[i+1],'女',names[i+1].substr(0,2)+"X",'','',true,''];
-          }
-          memberTable.clear();
-          memberTable.rows.add(memberResult).draw();
-          
-          return 
-          //
-          
-//          var startDateStr = $("#rsvQueryStartDate").val();
-//          var endDateStr = $("#rsvQueryEndDate").val();
-//
-//          console.log(startDateStr, endDateStr);
-//
-//          var apiUrl = apiUrlBase + "?API=00" + "&StartDate=" + startDateStr +"&EndDate=" + endDateStr;
-//
-//          //console.log(apiUrl);
-//
-//          $.loading.start('讀取資料');
-//          $.ajax({
-//            url: apiUrl,
-//            type: "GET",
-//            dataType: "json",
-//            success: function(returnData) {
-//              //returnFromAPI = JSON.parse(JSON.stringify(returnData));
-//              //console.log(returnFromAPI[0][3]);
-//
-//              memberResult = returnData;
-//
-//              for (i=0; i< memberResult.length; i++){
-//                memberResult[i][4] = memberResult[i][3].substr(11,5)+'~'+memberResult[i][4].substr(11,5);
-//                memberResult[i][3] = memberResult[i][3].substr(0,10);
-//              }
-//
-//
-//              memberTable.clear();
-//              memberTable.rows.add(memberResult).draw();
-//              $.loading.end();
-//              $("#ml-Sidebar-check-reservations").css("color", "#FBF279");                
-//              $("#sidebar-check-reservations-icon").css("color", "#FBF279");                
-//            },
-//
-//            error: function() {
-//              alert("Database READ ERROR!!!");
-//            }
-//          });             
-        }
-
-        function checkExpirations(){
-          var startDateStr = $("#expQueryStartDate").val();
-          var endDateStr = $("#expQueryEndDate").val();
-
-          console.log(startDateStr, endDateStr);
-
-          var apiUrl = apiUrlBase + "?API=01" + "&StartDate=" + startDateStr +"&EndDate=" + endDateStr;
-
-          //console.log(apiUrl);
-
-          $.loading.start('讀取資料');
-          $.ajax({
-            url: apiUrl,
-            type: "GET",
-            dataType: "json",
-            success: function(returnData) {
-              expResult = returnData;
-
-              for (i=0; i< expResult.length; i++){
-                expResult[i][5] = expResult[i][5].substr(0,10);
-                expResult[i][6] = expResult[i][6].substr(0,10);
-                expResult[i][7] = expResult[i][7].substr(0,10);
-              }
-
-              expirationsTable.clear();
-              expirationsTable.rows.add(expResult).draw();
-              $.loading.end();
-            },
-
-            error: function() {
-              alert("Database READ ERROR!!!");
-            }
-          });             
-        }
-        
-        function querySessions(){
-          
-          // Get settings of all Courses
-          
-          
-          
-          var startDateStr = $("#sessionQueryStartDate").val();
-          var endDateStr = $("#sessionQueryEndDate").val();
-
-          console.log(startDateStr, endDateStr);
-
-          var apiUrl = apiUrlBase + "?API=03" + "&StartDate=" + startDateStr +"&EndDate=" + endDateStr; // API=03 為只搜尋單一合約的 sessions
-
-          //console.log(apiUrl);
-
-          $.loading.start('讀取資料');
-          $.ajax({
-            url: apiUrl,
-            type: "GET",
-            dataType: "json",
-            success: function(returnData) {
-              //returnFromAPI = JSON.parse(JSON.stringify(returnData));
-              //console.log(returnFromAPI[0][3]);
-              
-              //querySessionsResult = JSON.parse(JSON.stringify(returnData));
-              var querySessionsResultRaw = JSON.parse(JSON.stringify(returnData));
-              console.log(querySessionsResultRaw);
-              querySessionsResult=[];
-              for (var i=0; i< querySessionsResultRaw.length; i++){
-                if (querySessionsResultRaw[i][30]==true) {
-                  querySessionsResult.push(querySessionsResultRaw[i]);
-                }
-              }
-              processContractSessionHistory();
-            },
-
-            error: function() {
-              alert("Database READ ERROR!!!");
-            }
-          });             
-        }
-        
-        async function getCourseSettings() {
-          
-          var apiUrl;       
-          
-
-          apiUrl = apiUrlBase + "?API=05"; 
-          await $.ajax({
-            url: apiUrl,
-            type: "GET",
-            dataType: "json",
-            success: function(returnData) {
-              for (var i=0; i< returnData.length; i++){
-                courseSettings[returnData[i][0]] = returnData[i][1];
-              }
-            },
-
-            error: function() {
-              alert("Database READ ERROR!!!");
-            }
-          }); 
-        }
-                    
-        async function processContractSessionHistory() {
-          
-          var apiUrl;
-          
-          $.loading.end();
-          $.loading.start("讀取課程設定");
-          apiUrl = apiUrlBase + "?API=05"; 
-          await $.ajax({
-            url: apiUrl,
-            type: "GET",
-            dataType: "json",
-            success: function(returnData) {
-              for (var i=0; i< returnData.length; i++){
-                courseSettings[returnData[i][0]] = returnData[i][1];
-              }
-            },
-
-            error: function() {
-              alert("Database READ ERROR!!!");
-            }
-          });
-          
-          
-          // collect contracts need to be queried
-          var contractsToQuery=[];
-          for (i=0; i< querySessionsResult.length; i++){
-              contractsToQuery.push(querySessionsResult[i][5])
-          }
-          //console.log(contractsToQuery);          
-          
-          for (var j=0; j<contractsToQuery.length;j++) {
-            if (contractSessionHistory[querySessionsResult[j][4]]== undefined) {
-              apiUrl = apiUrlBase + "?API=04" + "&contractId=" + contractsToQuery[j]; 
-              
-              $.loading.end();$.loading.start("讀取合約:"+contractsToQuery[j]);
-              await $.ajax({
-                url: apiUrl,
-                type: "GET",
-                dataType: "json",
-                success: function(returnData) {
-                  contractSessionHistory[contractsToQuery[j]] = [];
-                  for (var i=0; i < returnData.length; i++) {
-                    contractSessionHistory[contractsToQuery[j]].push( returnData[i][0].substr(0,10) + " " + returnData[i][0].substr(11,5)+'~'+returnData[i][1].substr(11,5) );
-                  }
-                },
-
-                error: function() {
-                  alert("Database READ ERROR!!!");
-                }
-              }); 
-              //console.log(contractsToQuery[j], "  done"); 
-            }
-          }
-          
-          var currentDate="0000-00-00";
-          var sessionIndexForDay = 1;
-          var amountForDay=0;
-          var storeId = "TW-Xinyi";
-          for (i=0; i< querySessionsResult.length; i++){
-
-            // 處理日期和時間
-            querySessionsResult[i][1] = querySessionsResult[i][0].substr(11,5)+'~'+querySessionsResult[i][1].substr(11,5);
-            querySessionsResult[i][0] = querySessionsResult[i][0].substr(0,10);
-            
-                      
-            
-            // 合約時間_月 
-            querySessionsResult[i][8] = courseSettings[querySessionsResult[i][7]];
-
-            // 合約簽訂日期，Database ContractForms 裡的 ProcessTime
-            querySessionsResult[i][9] = querySessionsResult[i][9].substr(0,10);
-            
-            // 合約開始日期，Database ContractForms 裡的 CourseSessionFirstStartDate           
-            querySessionsResult[i][10] = querySessionsResult[i][10].substr(0,10);
-            
-            // 處理 合約到期日期
-              // 合約到期日期，Database ContractForms 裡的 ExpirationDate 
-              querySessionsResult[i][11] = querySessionsResult[i][11].substr(0,10);       
-
-              // 合約延伸到期日期，Database ContractForms 裡的 ExpirationDate 
-              querySessionsResult[i][31] = querySessionsResult[i][31].substr(0,10);   
-
-              // 如果有延伸，結合兩個日期
-              if (querySessionsResult[i][31] > "0001-01-01") {
-                querySessionsResult[i][11] = querySessionsResult[i][11] + "<br>Ext. " + querySessionsResult[i][31];
-              }
-            
-            
-            // 處理 合約已進行(月)
-            var startDate = new Date(querySessionsResult[i][9]);
-            var endDate = new Date(querySessionsResult[i][0]);
-            querySessionsResult[i][12] = Math.floor((endDate - startDate)/(864000*30))/100;
-
-            // 處理 合約總價(未稅)
-            //querySessionsResult[i][13] = Math.floor(parseFloat(querySessionsResult[i][13])*100)/100;  
-
-            // 處理 合約總價(未稅)
-            querySessionsResult[i][14] = parseFloat(querySessionsResult[i][13])/1.05;  
-
-            // 處理 合約已執行堂數                
-            var sessionDateTime = querySessionsResult[i][0]+ " " + querySessionsResult[i][1];
-            //if (contractSessionHistory[querySessionsResult[i][4]].length >0){
-            //  console.log(contractSessionHistory[querySessionsResult[i][4]].indexOf(sessionDateTime)+1);
-            //}
-
-            querySessionsResult[i][19] =contractSessionHistory[querySessionsResult[i][5]].indexOf(sessionDateTime)+1;
-
-            // 處理 開始後來店頻率，因為會用到 querySessionsResult[i][18]，所以才放在之後，
-            var usedMonth = (querySessionsResult[i][12] == 0)?1:querySessionsResult[i][12];
-            querySessionsResult[i][16] = parseFloat(querySessionsResult[i][19])/usedMonth;
-             
-
-            // 處理 合約剩餘堂數                
-            querySessionsResult[i][21] = querySessionsResult[i][18] - querySessionsResult[i][19];
-
-
-            // 處理 課程單價(含稅)               
-            querySessionsResult[i][22] = parseFloat(querySessionsResult[i][13])/parseFloat(querySessionsResult[i][18]);                 
-
-            // 處理 課程單價(未稅)              
-            querySessionsResult[i][23] = parseFloat(querySessionsResult[i][14])/parseFloat(querySessionsResult[i][18]);                
-
-            // 合約退會堂數, 退費金額/課程單價(含稅)
-            querySessionsResult[i][20] = querySessionsResult[i][20]/querySessionsResult[i][22];               
-            
-            
-            // 處理 合約已認列金額(含稅)
-            querySessionsResult[i][24] = (querySessionsResult[i][19] * parseFloat(querySessionsResult[i][13])) / 
-                                         parseFloat(querySessionsResult[i][18]);
-
-            // 處理 合約已認列金額(未稅)
-            querySessionsResult[i][25] = querySessionsResult[i][24] / 1.05;
-
-            // 處理 合約未認列金額(含稅)
-            querySessionsResult[i][26] = querySessionsResult[i][13] - querySessionsResult[i][24];
-
-            // 處理 合約未認列金額(未稅)
-            querySessionsResult[i][27] = querySessionsResult[i][14] - querySessionsResult[i][25];                
-            if ( querySessionsResult[i][2] != storeId) {
-              console.log("store change");
-              storeId = querySessionsResult[i][2];
-              currentDate = "0000-00-00";
-            }
-            
-            if (querySessionsResult[i][0] > currentDate) {
-              //console.log("new day");
-              currentDate = querySessionsResult[i][0];
-              sessionIndexForDay = 1;
-              querySessionsResult[i][17] = sessionIndexForDay++; 
-              // 當日認列金額(含稅)
-              querySessionsResult[i][28] = querySessionsResult[i][22];
-
-            
-            } else {
-              // 堂數排序 not implement yet
-              querySessionsResult[i][17] = sessionIndexForDay++; 
-              querySessionsResult[i][28] = querySessionsResult[i][22]+querySessionsResult[i-1][28];
-            }
-            
-            // 當日認列金額(未稅)
-            querySessionsResult[i][29] = querySessionsResult[i][28]/1.05;  
-                           
-          }
-
-          querySessionsTable.clear();
-          querySessionsTable.rows.add(querySessionsResult).draw();
-          $.loading.end();          
-          
-        }
-        //以上目前沒用，先保留
+          return             
+        }      
       </script>
       
       <script>
+        // demo 用
         $("#checkDetails0").css("background-color", "rgb(255,67,80)");
         $("#checkDetails0").css("color", "rgb(255,255,255)");
       </script>
-       
-      <style>
-        ::-webkit-calendar-picker-indicator {
-          filter: invert(0.5);
-        }
-      </style>
-        
+             
     </body>
 </html>
