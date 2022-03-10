@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <script> 
-      var 版本="v0.95";
+      var 版本="v0.96";
       
       // login
       var loginUnit="";
@@ -96,8 +96,9 @@
           <div class="content container-fluid">
 
              <!-- Content Starts -->
-            <div id="">                              
+            <div id="">                           
               <div class="login_form">
+                <span style="font-size:20px;font-weight:bold">為獲得最佳使用體驗，請使用 Chrome 瀏覽器</span>
                 <form class="loginbox" autocomplete="off">
                   <input placeholder="名字" type="text" id="username" value="admin">
                   <input placeholder="密碼" type="password" id="password">
@@ -620,6 +621,37 @@
         //show_body_report_page();
         
         async function login() {
+          
+          // check if using Chrome
+          var isChromium = window.chrome;
+          var winNav = window.navigator;
+          var vendorName = winNav.vendor;
+          var isOpera = typeof window.opr !== "undefined";
+          var isIEedge = winNav.userAgent.indexOf("Edg") > -1;
+          var isIOSChrome = winNav.userAgent.match("CriOS");
+
+          console.log("check chrome");
+
+          if (isIOSChrome) {
+            condole.log("Chrome in iOS is not support!");
+            return;
+          } else if(
+            isChromium !== null &&
+            typeof isChromium !== "undefined" &&
+            vendorName === "Google Inc." &&
+            isOpera === false &&
+            isIEedge === false
+          ) {
+             console.log("chrome");
+          } else { 
+            // not Google Chrome 
+            console.log("non-chrome");
+            alert("為獲得最佳使用體驗，請使用 Chrome 瀏覽器");
+            return;
+          }
+
+          
+          
           event.preventDefault();
           console.log("login:", $("#username").val(),$("#password").val());
           
