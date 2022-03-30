@@ -12,20 +12,21 @@
  
   <div id="sidebar-menu" class="sidebar-menu">
 
-    <a style="margin-left:20px; margin-top:0px; padding-top:0px; color:white; font-size:20px; font-weight:bold;display:none">量測記錄</a>
+    <a style="margin-left:20px; margin-top:0px; padding-top:0px; color:white; font-size:20px; font-weight:bold">身高體重 BMI</a>
 
-    <button onClick="清除已登錄量測記錄()" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; margin-bottom:8px; margin-left:0px; vertical-align:middle; display:none">清除已登錄量測紀錄</button>                  
+    <button onClick="清除已登錄量測記錄()" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; margin-bottom:8px; margin-left:0px; vertical-align:middle">清除已登錄紀錄</button>                  
 
-    <a style="color:white; float:right; margin-right:10px; margin-top:2px; display:none"> 自動更新</a>
-    <input type="checkbox" id="autoUpdate" checked style="float:right; margin-right:5px; margin-top:5px; display:none" onClick="切換自動更新()">                    
-    <button id="手動更新按鈕" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; float:right; margin-right:5px; margin-top:0px; display:none">手動更新</button>
+    <a style="color:white; float:right; margin-right:10px; margin-top:2px"> 自動更新</a>
+    <input type="checkbox" id="autoUpdate" unchecked style="float:right; margin-right:5px; margin-top:5px" onClick="切換自動更新()">                    
+    <button id="手動更新按鈕" style="font-size:14px; background-color: antiquewhite; border-width:0px;border-radius:5px; float:right; margin-right:5px; margin-top:0px">手動更新</button>
 
 
 
     <nav style="color:white;margin-left:20px; margin-right:10px; height:703px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       
       <ul id="量測記錄表" style="padding:10px">
+<!--       
         <a id="使用說明">請登入系統後使用</a>
-<!--
+
           <li id="rb1"><button class="確定登錄按鈕" id="rec1" onClick="確定登錄按鈕(1)">確定登錄</button>林X文 4.75kg 10/29 下午2:43:39</li>  
           <li id="rb1"><button class="確定登錄按鈕" id="rec2" onClick="確定登錄按鈕(2)">確定登錄</button>林X文 4.75kg 10/29 下午2:43:39</li>                  
 -->
@@ -54,18 +55,13 @@
       var pickAname = names[Math.floor(Math.random()*100)];
       var rndWeight = (Math.random()*2 +2.5).toString().substr(0,4);
       var rndHeight = (Math.random()*40 +40).toString().substr(0,4);
-      var rndBMI = rndWeight/((rndHeight/100)*(rndHeight/100));
+      var rndBMI    = rndWeight/((rndHeight/100)*(rndHeight/100));
       var rndBMIStr = (Math.floor(rndBMI*100)/100).toString();
-      var recNoStr= recNo.toString();
-      var now = new Date(Date.now());
-      var nowStr =now.toLocaleString().substr(5,20);      
+      var recNoStr  = recNo.toString();
+      var now       = new Date(Date.now());
+      var nowStr    = now.toLocaleString().substr(5,20);      
       //console.log(pickAname, rndWeight);
-      var prependHtml = 
-//        '<li style="margin-top:10px" id=' + '"rec' + recNoStr + '"><button class="確定登錄按鈕' + 
-//        '" id="rb' + recNoStr + '" onClick="確定登錄按鈕('+ recNoStr +')" >確定登錄</button>'+
-//        '<span style="font-family:Noto Sans TC; font-size:18px">' + pickAname + '</span>' + '<span style="font-family:Noto Sans Mono; font-size:17px">' + 
-//        ':'+ rndWeight + 'KG ' + nowStr+ '</span>' + '</li>';
-      
+      var prependHtml =     
         '<div style="margin-top:10px" id=' + '"rec' + recNoStr + '"><button class="確定登錄按鈕' + 
         '" id="rb' + recNoStr + '" onClick="確定登錄按鈕('+ recNoStr +')" >確定登錄</button>' +
         '<span style="font-family:Noto Sans TC; font-size:18px; margin-left:0px">' + pickAname +

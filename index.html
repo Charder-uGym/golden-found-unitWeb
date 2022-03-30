@@ -178,13 +178,12 @@
           <!-- /Page Content -->
         </div>
         <!-- /Page Wrapper -->		
-
                                           
         <!-- Page Wrapper -->
-        <div class="page-wrapper" id="membership-page" style="margin-left:450px;display:none">
+        <div class="page-wrapper" id="membership-page" style="margin-left:450px; display:none">
 
           <!-- Page Content -->               
-          <div class="content container-fluid" style="margin-left:0px">         
+          <div class="content container-fluid" style="margin-left:0px; width:600px">         
             <div class="crms-title row bg-white" >
               <div class="col ">
                 <h3 class="page-title m-0">
@@ -264,10 +263,12 @@
                           <tr>
                             <th id="ml-ID">ID</th>
                             <th id="ml-姓名">姓名</th>
+<!--
                             <th id="ml-性別">性別</th>
                             <th id="ml-父母">父母</th>
-                            <th id="ml-父母電話">父母電話</th>
-                            <th id="ml-備註說明">備註說明</th>                
+-->
+                            <th id="ml-電話">電話</th>
+<!--                            <th id="ml-備註說明">備註說明</th>                -->
                             <th id="ml-量測記錄"></th>
                             <th id="ml-完成登錄"></th>
                          </tr>
@@ -479,7 +480,7 @@
         //                'excelHtml5',
         //                'csvHtml5',
         //                'pdfHtml5'
-            { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
+        //  { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
             { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
 
           ],            
@@ -729,28 +730,10 @@
           alert("歡迎登入 "+客戶名稱+" 查詢系統! \n使用設備有,\n"+使用設備Str+"\n使用後請記得登出");
           
           // 先使用 身體組成
-          if (使用身體組成) {
-            $(".page-wrapper").hide(); // hide all pages with page-wrapper class
-            $("#ml-head_title").text("身體組成報告");
-            $("#ml-登入單位").text(客戶名稱);
-            $("#ml-登入單位").show();
-            $("#ml-登出").show();
-            read身體組成資料();
-            show_body_report_page();
-            
-            //設定 timer 固定檢查身體組成是否有新資料
-            updateInterval = setInterval( async function () {
-              //console.log("check new data");
-              newRecNum = await read身體組成資料比數();
-              console.log(newRecNum);
-              
-              if (newRecNum > bodyCompositionResult.length) {
-                $("#更新section").show();
-              }                           
-            }, 6000); // use 60000 as interval for production
-            
-            
-          } else if (使用身高體重BMI) {
+          if (使用身高體重BMI) {
+            顯示身高體重BMI畫面();            
+          } else if (使用身體組成) {
+            顯示身體組成畫面();
           } else if (使用握力器) {
           }
         }
@@ -768,8 +751,61 @@
           使用身體組成=false;    $("#ml-握力資料").hide();
           使用身高體重BMI=false; $("#ml-身高體重BMI").hide();
           使用握力器=false;     $("#ml-握力資料").hide();   
+          $("#sidebar").hide(); 
+          
+          $("#量測記錄表")[0].innerHTML="";
           
           clearInterval(updateInterval);
+        }
+        
+        function 顯示身體組成畫面(){
+          $("#sidebar").hide(); 
+          $("#ml-身體組成資料").hide(); 
+          if (使用身高體重BMI) $("#ml-身高體重BMI").show();    
+          $("#ml-握力資料").hide()
+          $(".page-wrapper").hide(); // hide all pages with page-wrapper class
+          $("#ml-head_title").text("身體組成報告");
+          $("#ml-登入單位").text(客戶名稱);
+          $("#ml-登入單位").show();
+          $("#ml-登出").show();
+         
+          read身體組成資料();
+          show_body_report_page();
+
+          clearInterval(updateInterval);
+          //設定 timer 固定檢查身體組成是否有新資料
+          updateInterval = setInterval( async function () {
+            //console.log("check new data");
+            newRecNum = await read身體組成資料比數();
+            console.log(newRecNum);
+
+            if (newRecNum > bodyCompositionResult.length) {
+              $("#更新section").show();
+            }                           
+          }, 6000); // use 60000 as interval for production          
+        }
+          
+        function 顯示身高體重BMI畫面(){
+          if (使用身體組成)    $("#ml-身體組成資料").show();          
+          $("#ml-身高體重BMI").hide()          
+          $("#ml-握力資料").hide()          
+          $(".page-wrapper").hide(); // hide all pages with page-wrapper class
+          $("#ml-head_title").text("身高體重BMI查詢");
+          $("#ml-登入單位").text(客戶名稱);         
+          $("#ml-登入單位").show();
+          $("#ml-登出").show();  
+          
+          clearInterval(updateInterval);          
+          //設定 timer 固定檢查身高體重BMI是否有新資料
+          updateInterval = setInterval( async function () {
+            //console.log("check new data");
+            newRecNum = await read身高體重BMI資料比數();
+            console.log(newRecNum);
+
+//            if (newRecNum > bodyCompositionResult.length) {
+//              $("#更新section").show();
+//            }                           
+          }, 6000); // use 60000 as interval for production           
         }
         
         function dateTimeConv(timestamp){
@@ -794,6 +830,20 @@
           
           return(recNum);
         }
+        
+        async function read身高體重BMI資料比數() {
+          var recNum=0;
+          apiUrl = apiUrlBase+"?API=10&Unit="+客戶名稱+"&MeasureType=身高體重BMI";
+          await fetch(apiUrl)
+          .then(function(response) { 
+            return(response.text());
+          })
+          .then(function(result) {
+            recNum=parseInt(result);
+          });  
+          
+          return(recNum);
+        }        
         
         async function read身體組成資料(){
 
