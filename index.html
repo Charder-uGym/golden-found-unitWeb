@@ -9,7 +9,7 @@
       var loginPwd="";
       // Configuratiion
       var experimental=false;
-      var local_api = false;
+      var local_api = true;
       
       if (local_api) {
         var apiUrlBase = "http://localhost:5000/";
@@ -192,7 +192,7 @@
                   </span>
                   <span id="ml-資料標題"> 會員資料 </span>
                   <span style="float:right;margin-top:5px">
-                    <button onClick="show_body_report_page()" style="border:none;background-color: transparent">
+                    <button onClick="" style="border:none;background-color: transparent">
                       <i class="fa fa-plus" style="color:royalblue"> 新增會員</i>                      
                     </button>
                   </span>
@@ -269,7 +269,7 @@
 -->
                             <th id="ml-電話">電話</th>
 <!--                            <th id="ml-備註說明">備註說明</th>                -->
-                            <th id="ml-量測記錄"></th>
+<!--                            <th id="ml-量測記錄"></th>-->
                             <th id="ml-完成登錄"></th>
                          </tr>
                         </thead>
@@ -285,6 +285,58 @@
         </div>
         <!-- /Page Wrapper -->
 
+       
+        <!-- Page Wrapper -->
+        
+        <div class="page-wrapper" id="hwBMI-measurements-page" style="margin-left:450px; display:none">
+
+          <!-- Page Content -->               
+          <div class="content container-fluid" style="margin-left:0px; width:600px">         
+            <div class="crms-title row bg-white" >
+              <div class="col ">
+                <h3 class="page-title m-0">
+                  <span class="page-title-icon bg-gradient-primary text-white ">
+                    <i class="fa fa-user-o" aria-hidden="true"></i>
+                  </span>
+                  <span id="ml-量測紀錄標題"> 量測記錄 </span>
+                  <span style="float:right;margin-top:5px">
+                    <button onClick="show會員資料表()" style="border:none;background-color: transparent">
+                      <i class="fa fa-times" style=""> 關閉</i>                      
+                    </button>
+                  </span>
+                </h3>
+              </div>
+            </div>
+
+            <!-- Content Starts -->            
+            <div id="量測記錄表" class="row">
+              <div class="col-md-12">
+                <div class="card mb-0">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table id="身高體重BM量測記錄表" class="table table-striped table-nowrap custom-table mb-0" style="width:100%">
+                        <thead>
+                          <tr>
+                            <th id="ml-量測時間">量測時間</th>
+                            <th id="ml-體重">體重</th>
+                            <th id="ml-身高">身高</th>
+                            <th id="ml-BMI">BMI</th>
+                            <th id="ml-查看紀錄"></th>
+                         </tr>
+                        </thead>
+                      </table>
+                    </div>
+                  </div>
+                </div>		
+              </div>
+            </div>
+            <!-- /Content End -->
+          </div>
+          <!-- /Page Content -->
+        </div>
+        
+        <!-- /Page Wrapper -->  
+               
         <!-- Page Wrapper 沒被使用，留作參考-->
         <div class="page-wrapper" id="expire-page" style="display:none">
 
@@ -431,9 +483,11 @@
         var query_sessions_is_load = false;
 
         var bodyCompositionResult=[];
+        var 身高體重BMI資料={};
         var newRecNum=0;
         var updateInterval;
         var memberResult=[];
+        var hwBMIResult=[]; // result for table
         var expResult=[];
         var querySessionsResult=[];
         
@@ -486,27 +540,46 @@
           ],            
           order: [[ 0, "asc" ]],
           data: memberResult,    
-          pageLength: 7,
+          pageLength: 8,
           columnDefs: [
             { targets: -1, 
               render: function (data, type, row, meta) {  
                 return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="show_measurements(`+meta.row+`)">`+'查看紀錄'+`</button>`;
               },
             },            
-            { targets: -2, 
-              render: function (data, type, row, meta) { 
-                //console.log("bbb", meta);
-                return  `<button class="確定登錄按鈕" onClick="alert('Demo 版不支援')">`+'修改資料'+`</button>`;
-                //return  `<button class="確定登錄按鈕" onClick="show_measurements(`+meta.row+`)">`+'修改資料'+`</button>`;     
-                
-                // checkbox 留著參考
-                //if (data==true) return  '<i class="fa fa-check-square-o" aria-hidden="true"></i><span //style="display:none" >Y</span>';
-                //else            return  '<i class="fa fa-times" aria-hidden="true"></i><span //style="display:none">N</span>';
-
-              },
-            },                 
+//            { targets: -2, 
+//              render: function (data, type, row, meta) { 
+//                //console.log("bbb", meta);
+//                return  `<button class="確定登錄按鈕" onClick="alert('尚未完成')">`+'修改資料'+`</button>`;     
+//                
+//                // checkbox 留著參考
+//                //if (data==true) return  '<i class="fa fa-check-square-o" aria-hidden="true"></i><span //style="display:none" >Y</span>';
+//                //else            return  '<i class="fa fa-times" aria-hidden="true"></i><span //style="display:none">N</span>';
+//
+//              },
+//            },                 
           ]           
         } );
+        
+
+        var hwBMIMeasurementsTable =$('#身高體重BM量測記錄表').DataTable( {
+          dom: 'Bfrtip',
+          buttons: [
+            { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
+
+          ],            
+          order: [[ 0, "desc" ]],
+          data: hwBMIResult,    
+          pageLength: 8,
+          columnDefs: [
+            { targets: -1, 
+              render: function (data, type, row, meta) {  
+                return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="show_measurements(`+meta.row+`)">`+'查看紀錄'+`</button>`;
+              },
+            },                            
+          ]           
+        } );
+                   
         
         function showReport(index){
           LTindex = index;
@@ -652,8 +725,6 @@
             return;
           }
 
-          
-          
           event.preventDefault();
           console.log("login:", $("#username").val(),$("#password").val());
           
@@ -729,6 +800,8 @@
           
           alert("歡迎登入 "+客戶名稱+" 查詢系統! \n使用設備有,\n"+使用設備Str+"\n使用後請記得登出");
           
+          read身高體重BMI資料();
+          
           // 先使用 身體組成
           顯示身體組成畫面();
           
@@ -778,7 +851,7 @@
           //設定 timer 固定檢查身體組成是否有新資料
           updateInterval = setInterval( async function () {
             //console.log("check new data");
-            newRecNum = await read身體組成資料比數();
+            newRecNum = await read身體組成資料筆數();
             console.log(newRecNum);
 
             if (newRecNum > bodyCompositionResult.length) {
@@ -797,11 +870,14 @@
           $("#ml-登入單位").show();
           $("#ml-登出").show();  
           
+          $("#sidebar").show();
+          show_membership_page()
+          
           clearInterval(updateInterval);          
           //設定 timer 固定檢查身高體重BMI是否有新資料
           updateInterval = setInterval( async function () {
             //console.log("check new data");
-            newRecNum = await read身高體重BMI資料比數();
+            newRecNum = await read身高體重BMI資料筆數();
             console.log(newRecNum);
 
 //            if (newRecNum > bodyCompositionResult.length) {
@@ -819,7 +895,22 @@
           
         }
         
-        async function read身體組成資料比數() {
+        async function read會員資料hwBMI() {
+          var 會員資料hwBMI;
+          apiUrl = apiUrlBase+"?API=04&Unit="+客戶名稱;
+          await fetch(apiUrl)
+          .then(function(response) {
+            return(response.text());
+          })
+          .then(function(result) {
+            會員資料hwBMI=JSON.parse(result);
+            //console.log(會員資料hwBMI);
+          });  
+          
+          return(會員資料hwBMI);
+        }
+                
+        async function read身體組成資料筆數() {
           var recNum=0;
           apiUrl = apiUrlBase+"?API=10&Unit="+客戶名稱+"&MeasureType=身體組成";
           await fetch(apiUrl)
@@ -833,7 +924,7 @@
           return(recNum);
         }
         
-        async function read身高體重BMI資料比數() {
+        async function read身高體重BMI資料筆數() {
           var recNum=0;
           apiUrl = apiUrlBase+"?API=10&Unit="+客戶名稱+"&MeasureType=身高體重BMI";
           await fetch(apiUrl)
@@ -917,6 +1008,51 @@
           });                 
         }
           
+
+        async function read身高體重BMI資料(){
+
+          //使用 身高體重BMI資料;
+          
+          apiUrl = apiUrlBase+"?API=11&Unit="+客戶名稱+"&MeasureType=身高體重BMI";
+          console.log(apiUrl);          
+          var databaseErr=false;
+          var readErr=false;
+          var returnObj={};
+          $.loading.start('讀取資料');
+          await $.ajax({
+            url: apiUrl,
+            type: "GET",
+            dataType: "text",
+            success: function(returnData) {            
+              $.loading.end();
+              if (returnData.includes("ERROR")) {
+                readErr=true;
+              } else {
+                returnObj=JSON.parse(returnData);
+                console.log(returnObj);
+                
+                var returnObjKeys=Object.keys(returnObj);
+                for (var i=0; i < returnObjKeys.length; i++){
+                  //console.log(i, returnObj[returnObjKeys[i]]);
+                  console.log(returnObj[returnObjKeys[i]].id, returnObj[returnObjKeys[i]].measure_time );
+                  if (身高體重BMI資料[returnObj[returnObjKeys[i]].id]==undefined) {
+                    身高體重BMI資料[returnObj[returnObjKeys[i]].id]={};
+                  }
+                  
+                  身高體重BMI資料[returnObj[returnObjKeys[i]].id][returnObj[returnObjKeys[i]].measure_time]=returnObj[returnObjKeys[i]];
+                }
+                
+              }
+            },
+
+            error: function(e) {
+              $.loading.end();
+              console.log("error", e);
+              databaseErr=true;
+            }
+          });                 
+        }
+                        
         
         function show_login_page(){
           $(".page-wrapper").hide(); // hide all pages with page-wrapper class
@@ -929,16 +1065,43 @@
           $("#ml-身體組成資料").hide();
         } 
         
-        function show_measurements(data){
-          //console.log(memberResult[data]);
-          if (data==0) {
-            $("#會員資料表").hide();
-            $("#chartDiv").show();
-            $('#ml-資料標題').text('量測記錄');
-            drawChart();
-          } else {
-            alert("Demo 版不支援")
+        function show_measurements(data){        
+          if (身高體重BMI資料[memberResult[data][0]]==undefined) {
+            alert("此會員尚未有量測資料");
+            return;
           }
+                    
+          $("#ml-量測紀錄標題").text("ID: "+memberResult[data][0]+" "+memberResult[data][1]+" 量測記錄");
+          
+          //console.log(memberResult[data][0]);
+          
+          var measure_rec = 身高體重BMI資料[memberResult[data][0]];
+          
+          hwBMIResult=[];
+          for (rec in measure_rec) {
+            var data=[];
+            data.push([measure_rec[rec].measure_time]);
+            data.push([measure_rec[rec].net_weight]);
+            data.push([measure_rec[rec].height]);
+            data.push([measure_rec[rec].bmi]);
+            hwBMIResult.push(data);
+          }
+          
+          
+          hwBMIMeasurementsTable.clear();
+          hwBMIMeasurementsTable.rows.add(hwBMIResult).draw();            
+          
+          
+          show_hwBMI_measurements_page();
+          
+//          if (data==0) {
+//            $("#會員資料表").hide();
+//            $("#chartDiv").show();
+//            $('#ml-資料標題').text('量測記錄');
+//            drawChart();
+//          } else {
+//            alert("Demo 版不支援")
+//          }
         }
 
         function updateReports(){
@@ -1006,7 +1169,7 @@
         var myChartWeight;
         var myChartHeight;
         var myChartBMI;
-        function drawChart(){
+        function drawChart(){        
             ctxW = $('#myChartWeight');
             myChartWeight = new Chart(ctxW, {
               type: 'line',
@@ -1103,6 +1266,8 @@
 
         function show會員資料表(){
           $('#chartDiv').hide();
+          $("#hwBMI-measurements-page").hide();
+          $('#membership-page').show();
           $('#會員資料表').show();
           $('#ml-資料標題').text('會員資料');
         }
@@ -1120,24 +1285,47 @@
           }
         }        
 
-        
-        function queryMermbers(){
+        function show_hwBMI_measurements_page(){
+          $(".page-wrapper").hide(); // hide all pages with page-wrapper class
+          $(".sidebar-item").css("color","white")
+
+          //prepare data
           
-          //測試
-          var names=['龔X萱','吳X伯','王X佑','洪X銘','許X伶','張X青','張X富','劉X禮','林X豪','連X翰',
-                     '李X揚','梁X嘉','趙X如','莊X貴','王X哲','陳X剛','陳X孜','王X芸','謝X鴻','蔡X一',
-                     '張X霖','羅X冰','蘇X鈞','胡X倩','盧X聖','林X聖','林X菁','柳X倫','林X佳','陳X婷',
-                     '劉X穎','張X皓','林X佩','毛X婷','劉X軒','吳X雲','楊X帆','曾X云','杜X然','黃X平',
-                     '劉X剛','朱X苓','林X人','陳X瑋','陳X弘','黃X映','張X南','李X秀','郭X良','詹X貞',
-                     '鄭X斌','蕭X惠','賴X伯','鄭X德','林X音','林X偉','陳X珠','蘇X軒','邱X云','林X宏',
-                     '陳X婷','王X傑','陳X羽','吳X軒','黃X銘','劉X火','連X桂','吳X來','曾X惠','丁X梅',
-                     '張X源','何X倩','何X倫','余X倫','宋X純','曾X娟','陸X容','黃X蓮','王X育','賴X啟',
-                     '陳X意','朱X琳','林X夫','袁X穎','阮X傑','李X宇','林X君','林X易','黃X榮','王X香',
-                     '邱X文','曹X豪','許X昀','王X瑞','林X軒','林X伶','林X淳','楊X貞','陳X祥','王X玲'];          
-          for (var i=0;i<20; i+=2) {
-            memberResult[i]=['ID'+i.toString().padStart(8, '0'),names[i],'男',names[i].substr(0,2)+"X",'','',true,];
-            memberResult[i+1]=['ID'+(i+1).toString().padStart(8,'0'),names[i+1],'女',names[i+1].substr(0,2)+"X",'','',true,''];
+          $("#hwBMI-measurements-page").show(); 
+
+        } 
+        
+        
+        async function queryMermbers(){
+          
+          var 會員資料hwBMI = await read會員資料hwBMI();
+          //console.log(會員資料hwBMI);
+          
+          var 會員資料hwBMI_Keys = Object.keys(會員資料hwBMI);
+          for (var i=0; i< 會員資料hwBMI_Keys.length; i++){
+            //console.log(會員資料hwBMI[會員資料hwBMI_Keys[i]]);
+            memberResult[i]=[
+              會員資料hwBMI[會員資料hwBMI_Keys[i]].Id, 
+              會員資料hwBMI[會員資料hwBMI_Keys[i]].名字, 
+              會員資料hwBMI[會員資料hwBMI_Keys[i]].電話, 
+              "X", '', '', true,];            
           }
+          
+//          模擬資料
+//          var names=['龔X萱','吳X伯','王X佑','洪X銘','許X伶','張X青','張X富','劉X禮','林X豪','連X翰',
+//                     '李X揚','梁X嘉','趙X如','莊X貴','王X哲','陳X剛','陳X孜','王X芸','謝X鴻','蔡X一',
+//                     '張X霖','羅X冰','蘇X鈞','胡X倩','盧X聖','林X聖','林X菁','柳X倫','林X佳','陳X婷',
+//                     '劉X穎','張X皓','林X佩','毛X婷','劉X軒','吳X雲','楊X帆','曾X云','杜X然','黃X平',
+//                     '劉X剛','朱X苓','林X人','陳X瑋','陳X弘','黃X映','張X南','李X秀','郭X良','詹X貞',
+//                     '鄭X斌','蕭X惠','賴X伯','鄭X德','林X音','林X偉','陳X珠','蘇X軒','邱X云','林X宏',
+//                     '陳X婷','王X傑','陳X羽','吳X軒','黃X銘','劉X火','連X桂','吳X來','曾X惠','丁X梅',
+//                     '張X源','何X倩','何X倫','余X倫','宋X純','曾X娟','陸X容','黃X蓮','王X育','賴X啟',
+//                     '陳X意','朱X琳','林X夫','袁X穎','阮X傑','李X宇','林X君','林X易','黃X榮','王X香',
+//                     '邱X文','曹X豪','許X昀','王X瑞','林X軒','林X伶','林X淳','楊X貞','陳X祥','王X玲'];          
+//          for (var i=0;i<20; i+=2) {
+//            memberResult[i]=['ID'+i.toString().padStart(8, '0'), names[i],'男', names[i].substr(0,2)+"X", '', '', true,];
+//            memberResult[i+1]=['ID'+(i+1).toString().padStart(8,'0'),names[i+1],'女',names[i+1].substr(0,2)+"X",'','',true,''];
+//          }
           
           memberTable.clear();
           memberTable.rows.add(memberResult).draw();
