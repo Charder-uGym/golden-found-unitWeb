@@ -883,3 +883,177 @@ async function contractCheck(){
   contractDataTable.rows.add(contractResult).draw();  
   
 }
+
+
+function getDataOfAweek(reqDate){
+  所有量測數據=身高體重BMI資料["0000000000"];
+  keyOfMeasurements=Object.keys(所有量測數據);      
+  weekLabelsforChart=[];
+  weekDataForHeight=[];
+  weekDataForWeight=[];
+  weekDataForBMI=[];
+
+  var timeZoneOffset = new Date().getTimezoneOffset();
+  var UTC_delta = timeZoneOffset/(-60); // +8 in Taiwan
+  
+  for (var i=-3; i<4; i++) { // 從選擇日前四天到後兩天
+    selTime = new Date(reqDate - UTC_delta*3600000 + i*86400000);          
+    matchFullDate= matchFullDate = selTime.toISOString().substr(0,10);
+    //console.log(matchFullDate);
+
+    var matched=false;          
+    for (var rec in 所有量測數據) {
+
+      if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
+        weekLabelsforChart.push(所有量測數據[rec].measure_time);
+
+        weekDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+        weekDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
+        weekDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
+        matched=true;
+      }            
+    }
+    if (!matched) {
+      weekLabelsforChart.push(matchFullDate);
+      weekDataForHeight.push(null);          
+      weekDataForWeight.push(null);          
+      weekDataForBMI.push(null);          
+    }
+  }
+
+  console.log(weekDataForHeight);        
+  console.log(weekDataForWeight);        
+  console.log(weekDataForBMI);        
+}
+
+function drawChart(){
+
+  chartRange=0; //tmp hack, fix it
+  
+  $("#chart_range").text(weekLabelsforChart[0].substr(0,10)+" ~ "+weekLabelsforChart[weekLabelsforChart.length-1].substr(0,10));
+
+  ctxH = $('#myChartHeight');
+  myChartHeight = new Chart(ctxH, {           
+    type: 'line',
+    data: {
+      //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+      labels: weekLabelsforChart,
+      datasets: [{
+        backgroundColor: [
+          'rgba(99, 128, 64, 0.9)'
+        ],
+        label: '身高(公分)',
+        cubicInterpolationMode: 'monotone',                
+        data: weekDataForHeight
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          display:true,
+            ticks: {
+              count:7,
+              // Include a dollar sign in the ticks
+              callback: function(value, index, ticks) {
+                if (chartRange==0) {
+                  if (index==0 || index==3 ||index==6) return weekLabelsforChart[index].substr(5, 5);
+                  else return '';
+                } 
+              }
+            }
+        },
+        y: {
+//                  ticks: {
+//                    callback: function(value, index, ticks) {
+//                        return value+'公分';
+//                    }
+//                  }
+        }                
+      }
+    }            
+  });    
+
+  ctxW = $('#myChartWeight');
+  myChartWeight = new Chart(ctxW, {
+    type: 'line',
+    data: {
+      //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+      labels: weekLabelsforChart,
+      datasets: [{
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.9)'
+        ],
+        label: '體重(公斤)',
+        cubicInterpolationMode: 'monotone',
+        data: weekDataForWeight
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          display:true,
+            ticks: {
+              count:7,
+              callback: function(value, index, ticks) {
+                if (chartRange==0) {
+                  if (index==0 || index==3 ||index==6) return weekLabelsforChart[index].substr(5, 5);
+                  else return '';
+                }                      
+              }
+            }
+        },
+        y: {           
+          ticks:{
+//                  count:10
+//                    callback: function(value, index, ticks) {
+//                        return ' '+value;
+//                    }
+          }
+        }                
+      }
+    } 
+  });
+
+  ctxB = $('#myChartBMI');
+  myChartBMI = new Chart(ctxB, {
+    type: 'line',
+    data: {
+      //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+      labels: weekLabelsforChart,
+      datasets: [{
+        backgroundColor: [
+          'rgba(99, 128, 196, 0.9)'
+        ],
+        label: 'BMI',
+        cubicInterpolationMode: 'monotone',                
+        data: weekDataForBMI
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          display:true,
+            ticks: {
+              count:7,                    
+              // Include a dollar sign in the ticks
+              callback: function(value, index, ticks) {
+                if (chartRange==0) {
+                  if (index==0 || index==3 ||index==6) return weekLabelsforChart[index].substr(5, 5);
+                  else return '';
+                } 
+              }
+            }
+        },
+        y: {
+          ticks:{
+//                  count:10
+//                    callback: function(value, index, ticks) {
+//                        return 'x'+value;
+//                    }
+          }
+        }                
+      }
+    } 
+  });
+
+}   

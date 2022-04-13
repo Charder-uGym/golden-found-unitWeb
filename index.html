@@ -89,17 +89,16 @@
         </div>
         <!-- /Sidebar -->
 
-       <!-- Page Wrapper -->
+        <!-- Page Wrapper - login page-->
         <div class="page-wrapper" id="login-page" style="margin-left:450px;">
 
           <!-- Page Content -->               
           <div class="content container-fluid">
 
              <!-- Content Starts -->
-            <div id="">                           
               <div class="login_form">
                 <span style="font-size:20px;font-weight:bold">為獲得最佳使用體驗，請使用 Chrome 瀏覽器</span>
-                <form class="loginbox" autocomplete="off">
+                <form class="" autocomplete="off">
                   <input placeholder="名字" type="text" id="username" value="admin">
                   <input placeholder="密碼" type="password" id="password">
                   <button onClick="login()" id="login_button">Login</button>
@@ -107,7 +106,6 @@
               </div>            
             </div>        
             <!-- /Content End -->
-          </div>
           <!-- /Page Content -->
         </div>
         <!-- /Page Wrapper -->		
@@ -182,7 +180,9 @@
         <!-- Page Wrapper -->
         <div class="page-wrapper" id="membership-page" style="margin-left:450px; display:none">
 
-          <!-- Page Content -->               
+          <!-- Page Content -->    
+
+                                   
           <div class="content container-fluid" style="margin-left:0px; width:600px">         
             <div class="crms-title row bg-white" >
               <div class="col ">
@@ -191,65 +191,15 @@
                     <i class="fa fa-user-o" aria-hidden="true"></i>
                   </span>
                   <span id="ml-資料標題"> 會員資料 </span>
+                  <button id="手動刷新hwBMI會員" style="font-size:14px; background-color:#FF4350; color:white; border-width:0px; border-radius:5px; padding-top:5px" onclick="手動刷新hwBMI會員()">刷新會員</button>
+                  
                   <span style="float:right;margin-top:5px">
-                    <button onClick="" style="border:none;background-color: transparent">
-                      <i class="fa fa-plus" style="color:royalblue"> 新增會員</i>                      
+                    <button onClick="show_add_member_form()" style="border:none;background-color: transparent">
+                      <i class="fa fa-plus" style="color:royalblue"> 新增/修改會員</i>                      
                     </button>
                   </span>
                 </h3>
               </div>
-            </div>
-
-            <div id="chartDiv" style="display:none; margin-left:20px">
-              <div>
-                <button onClick="show會員資料表()" style="border:none; font-size:25px;margin-top:0px; margin-left:0px; background-color:transparent"><i class="fa fa-times" ></i>
-                <span style="font-size:16px"> 關閉</span></button>
-<!--
-                           
-                <div class="rec" style="margin-left:-200px;margin-top:0px; width:200px;height:608px; border-style:solid;border-color:black; border-width:1px; overflow:hidden; overflow-y:scroll;padding-top:5px">
-                  <button style="text-align:left; border:none; background-color:#F7F7F7">
-                    2021/11/23 <br> 
-                    4.5kg, 45cm, BMI:10   
-                  </button>
-                </div>           
--->
-              </div>
-              
-              <div>
-                <button class="selectedBtn">日</button>
-                <button class="unselectedBtn">週</button>
-                <button class="unselectedBtn">月</button>
-              </div>
-                        
-              <div style="margin-top:0px">
-<!--
-                <button onclick="alert('Demo 版不支援')" style="color:#FF4350; background-color:transparent; float:left; font-size:20px;margin-left:40px; margin-top:-5px; border:none"><i class="fa fa-arrow-left"></i></button>
-                <button onclick="alert('Demo 版不支援')" style="color:#FF4350; background-color:transparent; float:right; font-size:20px;margin-right:20px; margin-top:-5px; border:none"><i class="fa fa-arrow-right"></i></button>   
--->
-                
-                <input id="dateSlider" type="range" style="margin-top:30px;width:100%; margin-left:10px" min="0" max="8">
-                                                       
-                <div style="text-align: center">
-                  <div id="nowDate" >2021/11/23</div> <br>
-                  <div id="nowWeight" style="margin-top:-20px;font-size:30px; color:#ff6984">4.5kg</div>
-                </div>
-
-                <canvas id="myChartWeight" width="1000px" height="170px" style="margin:10px; margin-top:0px"></canvas>  
-
-                <div style="text-align:center">
-                  <div id="nowWeight" style="margin-top:10px;font-size:30px; color:#698040">53.2cm</div>
-                </div>
-                                    
-                <canvas id="myChartHeight" width="1000px" height="170px" style="margin:10px; margin-top:0px"></canvas>   
-                
-                <div style="text-align:center">
-                  <div id="nowWeight" style="margin-top:10px;font-size:30px; color:#6980b0">BMI: 20.6</div>
-                </div>
-                                
-                <canvas id="myChartBMI"    width="1000px" height="170px" style="margin:10px; margin-top:0px"></canvas>   
-              </div>                        
-                                                       
-                                       
             </div>
 
             <!-- Content Starts -->            
@@ -281,6 +231,18 @@
             </div>
             <!-- /Content End -->
           </div>
+          
+          <div id = "add_member_form" class="add_member_form" style="display:none">
+            <h2 style="font-size:20px;font-weight:bold">新增/修改會員</h2>
+            <div class="" autocomplete="off">
+              ID: <input placeholder="ID" type="text" id="new_member_id" >
+              名字: <input placeholder="名字" type="text" id="new_member_name">
+              電話號碼: <input placeholder="電話號碼" type="text" id="new_member_phone">
+              <button onClick="add_member()" >新增 / 修改 會員</button>
+              <button onClick="hide_add_member_form()" style="background-color:lightgray; color:white; margin-top:20px">取消</button>
+            </div>
+          </div>
+                        
           <!-- /Page Content -->
         </div>
         <!-- /Page Wrapper -->
@@ -301,7 +263,7 @@
                   <span id="ml-量測紀錄標題"> 量測記錄 </span>
                   <span style="float:right;margin-top:5px">
                     <button onClick="show會員資料表()" style="border:none;background-color: transparent">
-                      <i class="fa fa-times" style=""> 關閉</i>                      
+                      <i class="fa fa-times" style=""> 回到會員表</i>                      
                     </button>
                   </span>
                 </h3>
@@ -332,6 +294,43 @@
             </div>
             <!-- /Content End -->
           </div>
+          
+          
+<!--          <div class="content container-fluid" style="margin-left:1050px; width:600px">  -->
+          <div style="position:absolute; left:600px; top:65px; width:600px; text-align: center"> 
+            <div id="chartDiv">            
+              <div id="dateRangeButtons">
+                <!-- // $("#週按鈕").removeClass('selectedBtn').addClass('unselectedBtn');-->
+                <button id="週按鈕" class="selectedBtn" onclick="displayChartsInWeek()">日</button>
+                <button id="月按鈕" class="unselectedBtn" onclick="displayChartsInMonth()">週</button>
+                <button id="全部按鈕" class="unselectedBtn" onclick="displayChartsInAll()">全部</button>
+              </div>
+                       
+              <!-- <img id="hwBMI_blank" src="./blank.jpg" style="width:500px; margin-top:10px"><br> -->
+              <div id="charts" style="display:none">
+                <label id="chart_range" style="margin-top:10px; font-size:20px">日期時間</label><br>
+
+                <!-- 
+                <div style="float:left">
+                  <a id="left-arrow" style="font-size: 48px; color:#FF4350; float:left; margin-left:10px; margin-top:-60px" onclick="chartMovePrev()"><i class="fa fa-caret-left" aria-hidden="true"></i></a> 
+                </div>
+
+                <div style="float:right">            
+                  <a id="right-arrow" style="font-size: 48px; color:#FF4350; float:right;margin-right:10px; margin-top:-60px" onclick="chartMoveNext()"><i class="fa fa-caret-right" aria-hidden="true"></i></a> 
+                </div>
+                -->
+
+                <canvas id="myChartHeight" width="600px" height="200px" style="margin-top:5px"></canvas>   
+
+                <canvas id="myChartWeight" width="600px" height="200px" style="margin-top:10px"></canvas>   
+
+                <canvas id="myChartBMI" width="600px" height="200px" style="margin-top:10px"></canvas> 
+                                                       
+              </div>                  
+            </div>
+          </div>
+
+                                
           <!-- /Page Content -->
         </div>
         
@@ -484,12 +483,31 @@
 
         var bodyCompositionResult=[];
         var 身高體重BMI資料={};
+        var 會員資料hwBMI;
         var newRecNum=0;
         var updateInterval;
         var memberResult=[];
         var hwBMIResult=[]; // result for table
         var expResult=[];
         var querySessionsResult=[];
+        var chartsInited=false;
+        var chartCenterDate;
+        var timeZoneOffset = new Date().getTimezoneOffset();
+        var UTC_delta = timeZoneOffset/(-60); // +8 in Taiwan    
+        
+        var keyOfMeasurements;      
+        var weekLabelsforChart=[];
+        var weekDataForHeight=[];
+        var weekDataForWeight=[];
+        var weekDataForBMI=[];  
+        var monthLabelsforChart=[];
+        var monthDataForHeight=[];
+        var monthDataForWeight=[];
+        var monthDataForBMI=[];    
+        var allLabelsforChart=[];
+        var allDataForHeight=[];
+        var allDataForWeight=[];
+        var allDataForBMI=[];        
         
         var viewer = new ViewBigimg();
 
@@ -574,7 +592,7 @@
           columnDefs: [
             { targets: -1, 
               render: function (data, type, row, meta) {  
-                return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="show_measurements(`+meta.row+`)">`+'查看紀錄'+`</button>`;
+                return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="draw_hwBMI_charts(`+meta.row+`)">`+'圖表顯示'+`</button>`;
               },
             },                            
           ]           
@@ -823,9 +841,10 @@
           $("#ml-登出").hide();          
           $("#ml-head_title").text("請登入系統");
           客戶名稱="";
-          使用身體組成=false;    $("#ml-握力資料").hide();
+          使用身體組成=false;    $("#ml-身體組成資料").hide();
           使用身高體重BMI=false; $("#ml-身高體重BMI").hide();
           使用握力器=false;     $("#ml-握力資料").hide();   
+          
           $("#sidebar").hide(); 
           
           $("#量測記錄表")[0].innerHTML="";
@@ -885,7 +904,7 @@
 //            }                           
           }, 6000); // use 60000 as interval for production           
         }
-        
+                
         function dateTimeConv(timestamp){
           var tmp = new Date(timestamp+8*60*60*1000);
           var tmpStr= tmp.toISOString();
@@ -896,7 +915,7 @@
         }
         
         async function read會員資料hwBMI() {
-          var 會員資料hwBMI;
+          //var 會員資料hwBMI;
           apiUrl = apiUrlBase+"?API=04&Unit="+客戶名稱;
           await fetch(apiUrl)
           .then(function(response) {
@@ -907,7 +926,7 @@
             //console.log(會員資料hwBMI);
           });  
           
-          return(會員資料hwBMI);
+          //return(會員資料hwBMI);
         }
                 
         async function read身體組成資料筆數() {
@@ -1067,17 +1086,86 @@
           $("#ml-身體組成資料").hide();
         } 
         
-        function show_measurements(data){        
-          if (身高體重BMI資料[memberResult[data][0]]==undefined) {
+        function show_add_member_form(){
+          $("#new_member_id").val("");
+          $("#new_member_name").val("");
+          $("#new_member_phone").val("");   
+          
+          $("#add_member_form").show();
+        }
+        
+        function hide_add_member_form(){
+          
+          $("#add_member_form").hide();
+        }
+        
+        async function add_member(){
+          console.log($("#new_member_id").val());
+          console.log($("#new_member_name").val());
+          console.log($("#new_member_phone").val());
+          
+          if ( ($("#new_member_id").val()=="")    ||
+               ($("#new_member_name").val()=="")  ||
+               ($("#new_member_phone").val()=="") 
+          ){
+            alert("ID，名字和電話 不得為空白");
+            return;
+          }
+          
+          for (id in 會員資料hwBMI) {
+            console.log(id);    
+            if (id==$("#new_member_id").val()){
+              if (!confirm("ID: "+id+" 已存在，確定修改?")){
+                return;
+              }
+            }
+          }
+          
+          apiUrl = apiUrlBase+
+                   "?API=05&Unit="+客戶名稱 +
+                   "&UserID="+$("#new_member_id").val() +
+                   "&UserName="+$("#new_member_name").val() +
+                   "&UserPhone="+$("#new_member_phone").val() ;
+          
+          $.loading.start('寫入資料');
+          await fetch(apiUrl)
+          .then(function(response) {
+            return(response.text());
+          })
+          .then(function(result) {
+            console.log(result);
+            if (result.includes("ERROR")){
+              alert("新增/修改會員失敗!");
+            } else {
+              alert("新增/修改會員成功!");              
+            }
+          });  
+          
+          $("#add_member_form").hide();
+          queryMermbers();
+          $.loading.end();
+                           
+        }
+        
+        async function 手動刷新hwBMI會員(){
+          $.loading.start('刷新資料');
+          await queryMermbers();
+          $.loading.end();
+        }
+        
+        function show_measurements(rec_num){ 
+          console.log(rec_num);
+          $("#charts").hide();
+          if (身高體重BMI資料[memberResult[rec_num][0]]==undefined) {
             alert("此會員尚未有量測資料");
             return;
           }
                     
-          $("#ml-量測紀錄標題").text("ID: "+memberResult[data][0]+" "+memberResult[data][1]+" 量測記錄");
+          $("#ml-量測紀錄標題").text("ID: "+memberResult[rec_num][0]+" "+memberResult[rec_num][1]+" 量測記錄");
           
-          //console.log(memberResult[data][0]);
+          //console.log(memberResult[rec_num][0]);
           
-          var measure_rec = 身高體重BMI資料[memberResult[data][0]];
+          var measure_rec = 身高體重BMI資料[memberResult[rec_num][0]];
           
           hwBMIResult=[];
           for (rec in measure_rec) {
@@ -1163,111 +1251,9 @@
             showReport(RTindex);
           });
         }
-        
-        // Chart demo
-        var ctxW;
-        var ctxH;
-        var ctxB;
-        var myChartWeight;
-        var myChartHeight;
-        var myChartBMI;
-        function drawChart(){        
-            ctxW = $('#myChartWeight');
-            myChartWeight = new Chart(ctxW, {
-              type: 'line',
-              data: {
-                labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-                datasets: [{
-                  backgroundColor: [
-                    'rgba(255, 99, 132, 0.9)'
-                  ],
-                  label: '體重(公斤)',
-                  data: [3.95, 4.13, 4.21, 4.26, 4.28, 4.35, 4.52],
-                  tension: 0.3
-                }]
-              },
-              options: {
-                plugins: { 
-                  legend: {
-                    display: false,
-                    position: 'left'
-                  }
-                },                
-                scales: {
-                  x: {
-                    ticks: {
-                      display: false //this will remove only the label
-                    }
-                  }
-                }
-              }              
-            });      
-
-            ctxH = $('#myChartHeight');
-            myChartHeight = new Chart(ctxH, {
-              type: 'line',
-              data: {
-                labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-                datasets: [{
-                  backgroundColor: [
-                    'rgba(99, 128, 64, 0.9)'
-                  ],
-                  label: '身高(公分)',
-                  data: [50.1, 52.3, 54.7, 55.9, 56.8, 58.1, 60.2]
-                }]
-              },
-              options: {
-                plugins: { 
-                  legend: {
-                    display: false,
-                    position: 'left'
-                  }
-                },                
-                scales: {
-                  x: {
-                    ticks: {
-                      display: false //this will remove only the label
-                    }
-                  }
-                }
-              }
-            });    
-
-            ctxB = $('#myChartBMI');
-            myChartBMI = new Chart(ctxB, {
-              type: 'line',
-              data: {
-                labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-                datasets: [{
-                  backgroundColor: [
-                    'rgba(99, 128, 196, 0.9)'
-                  ],
-                  label: 'BMI          ',
-                  data: [20.6, 19.8, 20.1, 19.51, 17.81, 16.22, 15.9]
-                }]
-              },
-              options: {
-                plugins: { 
-                  legend: {
-                    display: false,
-                    position: 'left'
-                  }
-                },                
-                scales: {
-                  x: {
-                    ticks: {
-                      display: false //this will remove only the label
-                    }
-                  }
-                }
-              }
-            });
-
-        }
-
 
         function show會員資料表(){
-          $('#chartDiv').hide();
+          //$('#chartDiv').hide();
           $("#hwBMI-measurements-page").hide();
           $('#membership-page').show();
           $('#會員資料表').show();
@@ -1289,21 +1275,384 @@
 
         function show_hwBMI_measurements_page(){
           $(".page-wrapper").hide(); // hide all pages with page-wrapper class
-          $(".sidebar-item").css("color","white")
-
+          $(".sidebar-item").css("color","white");
+          
+          $("#dateRangeButtons").hide();
+ 
           //prepare data
           
           $("#hwBMI-measurements-page").show(); 
 
         } 
         
+        function draw_hwBMI_charts(itemSelect){          
+          //$("#hwBMI_blank").hide();          
+          $("#週按鈕").css("background-color","#FF4350");
+          $("#月按鈕").css("background-color","lightgray");
+          $("#全部按鈕").css("background-color","lightgray"); 
+          $("#dateRangeButtons").show();          
+          $("#charts").show();          
+          console.log(hwBMIResult[itemSelect]);
         
+          chartRange=0; //display in week
+          
+          var selectID=$("#ml-量測紀錄標題").text().split(" ");
+          console.log(selectID[1]);
+          
+          所有量測數據=身高體重BMI資料[selectID[1]];
+          
+          chartCenterDate = new Date(hwBMIResult[itemSelect][0][0]).getTime()
+          getDataOfAweek(chartCenterDate);
+          
+          if (!chartsInited) {
+            drawChart();
+            chartsInited=true;
+          } else {
+            $("#chart_range").text(weekLabelsforChart[0].substr(0,10)+" ~ "+weekLabelsforChart[weekLabelsforChart.length-1].substr(0,10));
+
+            myChartHeight.data.labels=weekLabelsforChart;
+            myChartWeight.data.labels=weekLabelsforChart;
+            myChartBMI.data.labels=weekLabelsforChart;
+
+            myChartHeight.data.datasets[0].data=weekDataForHeight; 
+            myChartWeight.data.datasets[0].data=weekDataForWeight; 
+            myChartBMI.data.datasets[0].data=weekDataForBMI; 
+
+            myChartHeight.options.scales.x.display=true;
+            myChartWeight.options.scales.x.display=true;
+            myChartBMI.options.scales.x.display=true;
+
+            myChartHeight.update();                 
+            myChartWeight.update();                 
+            myChartBMI.update();                         
+          }
+        }   
+        
+        function getDataOfAweek(reqDate){
+          keyOfMeasurements=Object.keys(所有量測數據);      
+          weekLabelsforChart=[];
+          weekDataForHeight=[];
+          weekDataForWeight=[];
+          weekDataForBMI=[];
+
+          for (var i=-3; i<4; i++) { // 從選擇日前四天到後兩天
+            //selTime = new Date(reqDate - UTC_delta*3600000 + i*86400000);          
+            selTime = new Date(reqDate - 0*3600000 + i*86400000);          
+            matchFullDate= matchFullDate = selTime.toISOString().substr(0,10);
+            //console.log(matchFullDate);
+
+            var matched=false;          
+            for (var rec in 所有量測數據) {
+
+              if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
+                weekLabelsforChart.push(所有量測數據[rec].measure_time);
+
+                weekDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+                weekDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
+                weekDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
+                matched=true;
+              }            
+            }
+            if (!matched) {
+              weekLabelsforChart.push(matchFullDate);
+              weekDataForHeight.push(null);          
+              weekDataForWeight.push(null);          
+              weekDataForBMI.push(null);          
+            }
+          }
+
+          console.log(weekDataForHeight);        
+          console.log(weekDataForWeight);        
+          console.log(weekDataForBMI);        
+        }
+
+        function getDataOfAmonth(reqDate){
+        keyOfMeasurements=Object.keys(所有量測數據);
+        monthLabelsforChart=[];
+        monthDataForHeight=[];
+        monthDataForWeight=[];
+        monthDataForBMI=[];     
+        
+        for (var i=-15; i<16; i++) { 
+          selTime = new Date(reqDate - UTC_delta*3600000+ i*86400000);
+          //console.log(selTime.toISOString());
+          matchFullDate = selTime.toISOString().substr(0,10);
+          //console.log(matchFullDate);
+                
+          var matched=false;          
+          for (var rec in 所有量測數據) {
+
+            if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
+              
+              monthLabelsforChart.push(所有量測數據[rec].measure_time);
+              
+              monthDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+              monthDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
+              monthDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
+              matched=true;
+            }            
+          }
+          if (!matched) {
+            monthLabelsforChart.push(matchFullDate);
+            monthDataForHeight.push(null);          
+            monthDataForWeight.push(null);          
+            monthDataForBMI.push(null);          
+          }
+        }
+        
+        console.log(monthDataForHeight);        
+        console.log(monthDataForWeight);        
+        console.log(monthDataForBMI);        
+      }        
+        
+        function getDataOfAll(){
+
+          allLabelsforChart=[];
+          allDataForHeight=[];
+          allDataForWeight=[];
+          allDataForBMI=[];
+
+          for (var rec in 所有量測數據) {
+
+              allLabelsforChart.push(所有量測數據[rec].measure_time);
+
+              allDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+              allDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
+              allDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
+
+          }
+
+          console.log(allLabelsforChart);        
+          console.log(allDataForHeight);        
+          console.log(allDataForWeight);        
+          console.log(allDataForBMI);        
+        }
+        
+        function drawChart(){          
+          $("#chart_range").text(weekLabelsforChart[0].substr(0,10)+" ~ "+weekLabelsforChart[weekLabelsforChart.length-1].substr(0,10));
+
+          ctxH = $('#myChartHeight');
+          myChartHeight = new Chart(ctxH, {           
+            type: 'line',
+            data: {
+              //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+              labels: weekLabelsforChart,
+              datasets: [{
+                backgroundColor: [
+                  'rgba(99, 128, 64, 0.9)'
+                ],
+                label: '身高(公分)',
+                cubicInterpolationMode: 'monotone',                
+                data: weekDataForHeight
+              }]
+            },
+            options: {
+              scales: {
+                x: {
+                  display:true,
+                    ticks: {
+                      count:7,
+                      // Include a dollar sign in the ticks
+                      callback: function(value, index, ticks) {
+                        if (chartRange==0) {
+                          if (index==0 || index==3 ||index==6) return weekLabelsforChart[index].substr(5, 5);
+                          else return '';
+                        } 
+                      }
+                    }
+                },
+                y: {
+        //                  ticks: {
+        //                    callback: function(value, index, ticks) {
+        //                        return value+'公分';
+        //                    }
+        //                  }
+                }                
+              }
+            }            
+          });    
+
+          ctxW = $('#myChartWeight');
+          myChartWeight = new Chart(ctxW, {
+            type: 'line',
+            data: {
+              //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+              labels: weekLabelsforChart,
+              datasets: [{
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.9)'
+                ],
+                label: '體重(公斤)',
+                cubicInterpolationMode: 'monotone',
+                data: weekDataForWeight
+              }]
+            },
+            options: {
+              scales: {
+                x: {
+                  display:true,
+                    ticks: {
+                      count:7,
+                      callback: function(value, index, ticks) {
+                        if (chartRange==0) {
+                          if (index==0 || index==3 ||index==6) return weekLabelsforChart[index].substr(5, 5);
+                          else return '';
+                        }                      
+                      }
+                    }
+                },
+                y: {           
+                  ticks:{
+        //                  count:10
+        //                    callback: function(value, index, ticks) {
+        //                        return ' '+value;
+        //                    }
+                  }
+                }                
+              }
+            } 
+          });
+
+          ctxB = $('#myChartBMI');
+          myChartBMI = new Chart(ctxB, {
+            type: 'line',
+            data: {
+              //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+              labels: weekLabelsforChart,
+              datasets: [{
+                backgroundColor: [
+                  'rgba(99, 128, 196, 0.9)'
+                ],
+                label: 'BMI',
+                cubicInterpolationMode: 'monotone',                
+                data: weekDataForBMI
+              }]
+            },
+            options: {
+              scales: {
+                x: {
+                  display:true,
+                    ticks: {
+                      count:7,                    
+                      // Include a dollar sign in the ticks
+                      callback: function(value, index, ticks) {
+                        if (chartRange==0) {
+                          if (index==0 || index==3 ||index==6) return weekLabelsforChart[index].substr(5, 5);
+                          else return '';
+                        } 
+                      }
+                    }
+                },
+                y: {
+                  ticks:{
+        //                  count:10
+        //                    callback: function(value, index, ticks) {
+        //                        return 'x'+value;
+        //                    }
+                  }
+                }                
+              }
+            } 
+          });
+
+        }           
+
+        function displayChartsInWeek(){
+          console.log("Display Charts in week range");
+          chartRange=0;
+          $("#週按鈕").css("background-color","#FF4350");
+          $("#月按鈕").css("background-color","lightgray");
+          $("#全部按鈕").css("background-color","lightgray");   
+
+          $("#left-arrow").css("color","#FF4435");
+          $("#right-arrow").css("color","#FF4435");
+
+          getDataOfAweek(chartCenterDate);
+          $("#chart_range").text(weekLabelsforChart[0].substr(0,10)+" ~ "+weekLabelsforChart[weekLabelsforChart.length-1].substr(0,10));
+
+          myChartHeight.data.labels=weekLabelsforChart;
+          myChartWeight.data.labels=weekLabelsforChart;
+          myChartBMI.data.labels=weekLabelsforChart;
+
+          myChartHeight.data.datasets[0].data=weekDataForHeight; 
+          myChartWeight.data.datasets[0].data=weekDataForHeight; 
+          myChartBMI.data.datasets[0].data=weekDataForHeight; 
+
+          myChartHeight.options.scales.x.display=true;
+          myChartWeight.options.scales.x.display=true;
+          myChartBMI.options.scales.x.display=true;
+
+          myChartHeight.update();                 
+          myChartWeight.update();                 
+          myChartBMI.update();                 
+        }
+        
+        function displayChartsInMonth(){
+        console.log("Display Charts in month range");
+        chartRange=1;
+        $("#週按鈕").css("background-color","lightgray");
+        $("#月按鈕").css("background-color","#FF4350");
+        $("#全部按鈕").css("background-color","lightgray");
+        
+        $("#left-arrow").css("color","#FF4435");
+        $("#right-arrow").css("color","#FF4435");        
+        
+        getDataOfAmonth(chartCenterDate);
+        $("#chart_range").text(monthLabelsforChart[0].substr(0,10)+" ~ "+monthLabelsforChart[monthLabelsforChart.length-1].substr(0,10));
+        myChartHeight.data.labels=monthLabelsforChart;
+        myChartWeight.data.labels=monthLabelsforChart;
+        myChartBMI.data.labels=monthLabelsforChart;
+        
+        myChartHeight.data.datasets[0].data=monthDataForHeight;
+        myChartWeight.data.datasets[0].data=monthDataForWeight;
+        myChartBMI.data.datasets[0].data=monthDataForBMI;
+        
+        myChartHeight.options.scales.x.display=false;        
+        myChartWeight.options.scales.x.display=false;        
+        myChartBMI.options.scales.x.display=false;        
+      
+        myChartHeight.update();          
+        myChartWeight.update();          
+        myChartBMI.update();                 
+      }
+        
+        function displayChartsInAll(){
+          console.log("Display Charts in all");
+          chartRange=3;
+          $("#週按鈕").css("background-color","lightgray");
+          $("#月按鈕").css("background-color","lightgray");
+          $("#全部按鈕").css("background-color","#FF4350");     
+
+          $("#left-arrow").css("color","lightgray");
+          $("#right-arrow").css("color","lightgray");        
+
+          getDataOfAll();
+
+          $("#chart_range").text(allLabelsforChart[0].substr(0,10)+" ~ "+allLabelsforChart[allLabelsforChart.length-1].substr(0,10));        
+
+          myChartHeight.data.labels=allLabelsforChart;
+          myChartWeight.data.labels=allLabelsforChart;
+          myChartBMI.data.labels=allLabelsforChart;
+
+          myChartHeight.data.datasets[0].data=allDataForHeight;
+          myChartWeight.data.datasets[0].data=allDataForWeight;
+          myChartBMI.data.datasets[0].data=allDataForBMI;
+
+          myChartHeight.options.scales.x.display=false; 
+          myChartWeight.options.scales.x.display=false; 
+          myChartBMI.options.scales.x.display=false; 
+
+          myChartHeight.update();        
+          myChartWeight.update();        
+          myChartBMI.update();        
+        }         
         async function queryMermbers(){
           
-          var 會員資料hwBMI = await read會員資料hwBMI();
+          await read會員資料hwBMI();
           //console.log(會員資料hwBMI);
           
           var 會員資料hwBMI_Keys = Object.keys(會員資料hwBMI);
+          memberResult=[];
           for (var i=0; i< 會員資料hwBMI_Keys.length; i++){
             //console.log(會員資料hwBMI[會員資料hwBMI_Keys[i]]);
             memberResult[i]=[
@@ -1312,23 +1661,7 @@
               會員資料hwBMI[會員資料hwBMI_Keys[i]].電話, 
               "X", '', '', true,];            
           }
-          
-//          模擬資料
-//          var names=['龔X萱','吳X伯','王X佑','洪X銘','許X伶','張X青','張X富','劉X禮','林X豪','連X翰',
-//                     '李X揚','梁X嘉','趙X如','莊X貴','王X哲','陳X剛','陳X孜','王X芸','謝X鴻','蔡X一',
-//                     '張X霖','羅X冰','蘇X鈞','胡X倩','盧X聖','林X聖','林X菁','柳X倫','林X佳','陳X婷',
-//                     '劉X穎','張X皓','林X佩','毛X婷','劉X軒','吳X雲','楊X帆','曾X云','杜X然','黃X平',
-//                     '劉X剛','朱X苓','林X人','陳X瑋','陳X弘','黃X映','張X南','李X秀','郭X良','詹X貞',
-//                     '鄭X斌','蕭X惠','賴X伯','鄭X德','林X音','林X偉','陳X珠','蘇X軒','邱X云','林X宏',
-//                     '陳X婷','王X傑','陳X羽','吳X軒','黃X銘','劉X火','連X桂','吳X來','曾X惠','丁X梅',
-//                     '張X源','何X倩','何X倫','余X倫','宋X純','曾X娟','陸X容','黃X蓮','王X育','賴X啟',
-//                     '陳X意','朱X琳','林X夫','袁X穎','阮X傑','李X宇','林X君','林X易','黃X榮','王X香',
-//                     '邱X文','曹X豪','許X昀','王X瑞','林X軒','林X伶','林X淳','楊X貞','陳X祥','王X玲'];          
-//          for (var i=0;i<20; i+=2) {
-//            memberResult[i]=['ID'+i.toString().padStart(8, '0'), names[i],'男', names[i].substr(0,2)+"X", '', '', true,];
-//            memberResult[i+1]=['ID'+(i+1).toString().padStart(8,'0'),names[i+1],'女',names[i+1].substr(0,2)+"X",'','',true,''];
-//          }
-          
+                  
           memberTable.clear();
           memberTable.rows.add(memberResult).draw();
           

@@ -85,4 +85,57 @@ td.highlight {
       background: #369cb8;
     }
   }
+
+.add_member_form {
+  position: absolute;
+  top: 300px;
+  left: 230px;
+  background: #fff;
+  width: 500px;
+  margin: -140px 0 0 -182px;
+  padding: 40px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+}
+.add_member_form  h2 {
+    margin: 0 0 20px;
+    line-height: 1;
+    color: black; /*#44c4e7;*/
+    font-size: 32px;
+    font-weight: 400;
+}
+.add_member_form input {
+    outline: none;
+    display: block;
+    width: 100%;
+    margin: 0 0 20px;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    color: black; /*#ccc;*/
+    font-family: "Roboto";
+    box-sizing: border-box;
+    font-size: 20px;
+    font-wieght: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: 0.2s linear;
+    &input:focus {
+      color: #333;
+      border: 1px solid #44c4e7;
+    }
+}
+.add_member_form button {
+    cursor: pointer;
+    background: #ff4350;
+    width: 100%;
+    padding: 10px 15px;
+    border: 0;
+    color: #fff;
+    font-family: "Roboto";
+    font-size: 20px;
+    font-weight: 400;
+    &:hover {
+      background: #369cb8;
+    }
+  }
+
 }
