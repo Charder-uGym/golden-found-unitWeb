@@ -142,7 +142,7 @@
 
             <!-- Content Starts -->
             <div style="position:absolute; top:120px;left:-430px; width:600px ">
-            <div id="有報告總人數" style="margin-top:-35px; float:right; margin-right:5px; font-weight:bold; font-size:20px">有報告總人數</div>
+            <div id="有報告總人數" style="margin-top:-35px; float:right; margin-right:5px; font-weight:bold; font-size:20px"></div>
             <div id="身體組成紀錄表" class="row">
               <div class="col-md-12">
                 <div class="card mb-0">
@@ -815,22 +815,15 @@
           使用設備Str = (使用握力器)?     (使用設備Str+"    握力器\n"):使用設備Str;
           
           if (使用身體組成)    $("#ml-身體組成資料").show();
-          if (使用身高體重BMI) $("#ml-身高體重BMI").show();
+          if (使用身高體重BMI) {$("#ml-身高體重BMI").show(); read身高體重BMI資料();}
           if (使用握力器)      $("#ml-握力資料").show();
           
           alert("歡迎登入 "+客戶名稱+" 查詢系統! \n使用設備有,\n"+使用設備Str+"\n使用後請記得登出");
           
-          read身高體重BMI資料();
+          //read身高體重BMI資料();
           
           // 先使用 身體組成
           顯示身體組成畫面();
-          
-//          if (使用身高體重BMI) {
-//            顯示身高體重BMI畫面();            
-//          } else if (使用身體組成) {
-//            顯示身體組成畫面();
-//          } else if (使用握力器) {
-//          }
         }
         
         function logout(){
@@ -977,6 +970,7 @@
         
         async function read身體組成資料(){
 
+          $("#有報告總人數").text("");
           bodyCompositionResult=[];
           
           apiUrl = apiUrlBase+"?API=11&Unit="+客戶名稱+"&MeasureType=身體組成";
@@ -1037,8 +1031,9 @@
               
               const distinct = (value, index, self) => { return self.indexOf(value) === index;}
               
+              console.log(bodyCompositionResult);
               var 有報告的人=[];
-              for (var i=0; i<136;i++) 有報告的人.push(bodyCompositionResult[i][1]); 
+              for (var i=0; i<bodyCompositionResult.length;i++) 有報告的人.push(bodyCompositionResult[i][1]); 
               var 有報告不同名人數=有報告的人.filter(distinct).length;
               $("#有報告總人數").text("有報告總人數: "+有報告不同名人數.toString()+ "人");
               
