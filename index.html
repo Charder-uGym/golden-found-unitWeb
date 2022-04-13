@@ -24,15 +24,15 @@
          
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <meta name="description" content="金機">
+    <meta name="description" content="量測記錄管理系統">
     <meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern, accounts, invoice, html5, responsive, CRM, Projects">
     <meta name="author" content="">
     <meta name="robots" content="noindex, nofollow">
     <meta name="format-detection" content="telephone=no">
-    <title>金機</title>
+    <title>量測記錄管理系統</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">
+<!--    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">-->
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
@@ -142,6 +142,7 @@
 
             <!-- Content Starts -->
             <div style="position:absolute; top:120px;left:-430px; width:600px ">
+            <div id="有報告總人數" style="margin-top:-35px; float:right; margin-right:5px; font-weight:bold; font-size:20px">有報告總人數</div>
             <div id="身體組成紀錄表" class="row">
               <div class="col-md-12">
                 <div class="card mb-0">
@@ -483,6 +484,7 @@
 
         var bodyCompositionResult=[];
         var 身高體重BMI資料={};
+        var 未登錄資料hwBMI={};
         var 會員資料hwBMI;
         var newRecNum=0;
         var updateInterval;
@@ -897,6 +899,7 @@
           updateInterval = setInterval( async function () {
             //console.log("check new data");
             newRecNum = await read身高體重BMI資料筆數();
+            新增未登錄資料hwBMI();
             console.log(newRecNum);
 
 //            if (newRecNum > bodyCompositionResult.length) {
@@ -913,7 +916,22 @@
           return(tmpStr);
           
         }
-        
+
+        //?API=12&Unit=金機興業
+        async function read未登錄資料hwBMI() {
+          apiUrl = apiUrlBase+"?API=12&Unit="+客戶名稱;
+          await fetch(apiUrl)
+          .then(function(response) {
+            return(response.text());
+          })
+          .then(function(result) {
+            未登錄資料hwBMI=JSON.parse(result);
+            //console.log(未登錄資料hwBMI);
+          });  
+          
+          return(未登錄資料hwBMI);
+        }
+                        
         async function read會員資料hwBMI() {
           //var 會員資料hwBMI;
           apiUrl = apiUrlBase+"?API=04&Unit="+客戶名稱;
@@ -1015,7 +1033,14 @@
               
               //console.log(bodyCompositionResult);
               bodyCompositionTable.clear();
-              bodyCompositionTable.rows.add(bodyCompositionResult).draw();  
+              bodyCompositionTable.rows.add(bodyCompositionResult).draw(); 
+              
+              const distinct = (value, index, self) => { return self.indexOf(value) === index;}
+              
+              var 有報告的人=[];
+              for (var i=0; i<136;i++) 有報告的人.push(bodyCompositionResult[i][1]); 
+              var 有報告不同名人數=有報告的人.filter(distinct).length;
+              $("#有報告總人數").text("有報告總人數: "+有報告不同名人數.toString()+ "人");
               
               //showReport(bodyCompositionResult.length-1);
                
@@ -1666,7 +1691,46 @@
           memberTable.rows.add(memberResult).draw();
           
           return             
-        }      
+        }     
+        
+        var rec=0;
+        async function 新增未登錄資料hwBMI(){
+          await read未登錄資料hwBMI(未登錄資料hwBMI);
+          console.log(未登錄資料hwBMI);
+          
+          var prependHtml="";
+          //for (unchecked_rec in 未登錄資料hwBMI) {
+          var new_rec_keys = Object.keys(未登錄資料hwBMI);
+          for (var i=new_rec_keys.length-1; i>-1; i--) {
+            var new_id    = 未登錄資料hwBMI[new_rec_keys[i]].id;
+            var new_name  = 會員資料hwBMI[new_id].名字;
+            var new_weight= 未登錄資料hwBMI[new_rec_keys[i]].net_weight;            
+            var new_height= 未登錄資料hwBMI[new_rec_keys[i]].height;            
+            var new_bmi   = 未登錄資料hwBMI[new_rec_keys[i]].bmi;   
+            var nowStr    = 未登錄資料hwBMI[new_rec_keys[i]].measure_time;   
+            console.log(new_id, new_name, new_weight, new_height, new_bmi, nowStr);
+        
+            var recNoStr= recNo.toString();    
+
+            prependHtml = prependHtml +
+              '<div style="margin-top:10px" id=' + '"rec' + recNoStr + '"><button class="確定登錄按鈕' + 
+              '" id="rb' + recNoStr + '" onClick="確定登錄按鈕('+ recNoStr +')" >確定登錄</button>' +
+              '<span style="font-family:Noto Sans TC; font-size:18px; margin-left:0px">' + new_name +
+              '<span style="font-family:Noto Sans Mono; font-size:18px"> '+ nowStr+ ' </span>' + 
+
+              '</span>' + '<br><span style="font-family:Noto Sans Mono; font-size:14px; margin-left:0px">' + 
+              ' 體重:' + new_weight + '公斤, 身高:' + new_height + '公分, BMI:' + new_bmi + ' </span>'+
+              '</div>';      
+
+            recNo++;
+          }
+          //console.log(prependHtml);
+
+          //$("#量測記錄表").prepend(prependHtml);
+          $("#量測記錄表").html(prependHtml);          
+
+        }        
+        
       </script>
       
       <script>
