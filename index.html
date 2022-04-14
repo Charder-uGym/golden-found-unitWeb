@@ -510,6 +510,7 @@
         var allDataForHeight=[];
         var allDataForWeight=[];
         var allDataForBMI=[];        
+        var checkInfoHtml="";
         
         var viewer = new ViewBigimg();
 
@@ -827,24 +828,25 @@
         }
         
         function logout(){
-          客戶名稱="";
-          show_login_page();
-          $("#password").focus();
-          //$("#username").val("");
-          $("#password").val("");          
-          $("#ml-登入單位").hide();
-          $("#ml-登出").hide();          
-          $("#ml-head_title").text("請登入系統");
-          客戶名稱="";
-          使用身體組成=false;    $("#ml-身體組成資料").hide();
-          使用身高體重BMI=false; $("#ml-身高體重BMI").hide();
-          使用握力器=false;     $("#ml-握力資料").hide();   
-          
-          $("#sidebar").hide(); 
-          
-          $("#量測記錄表")[0].innerHTML="";
-          
-          clearInterval(updateInterval);
+          location.reload();
+//          客戶名稱="";
+//          show_login_page();
+//          $("#password").focus();
+//          //$("#username").val("");
+//          $("#password").val("");          
+//          $("#ml-登入單位").hide();
+//          $("#ml-登出").hide();          
+//          $("#ml-head_title").text("請登入系統");
+//          客戶名稱="";
+//          使用身體組成=false;    $("#ml-身體組成資料").hide();
+//          使用身高體重BMI=false; $("#ml-身高體重BMI").hide();
+//          使用握力器=false;     $("#ml-握力資料").hide();   
+//          
+//          $("#sidebar").hide(); 
+//          
+//          $("#量測記錄表")[0].innerHTML="";
+//          
+//          clearInterval(updateInterval);
         }
         
         function 顯示身體組成畫面(){
@@ -874,7 +876,7 @@
           }, 6000); // use 60000 as interval for production          
         }
           
-        function 顯示身高體重BMI畫面(){
+        async function 顯示身高體重BMI畫面(){
           if (使用身體組成)    $("#ml-身體組成資料").show();          
           $("#ml-身高體重BMI").hide()          
           $("#ml-握力資料").hide()          
@@ -885,20 +887,22 @@
           $("#ml-登出").show();  
           
           $("#sidebar").show();
-          show_membership_page()
+          await show_membership_page()
           
+          $("#檢查是否有新資料").text("檢查是否有新資料...");
+          await 新增未登錄資料hwBMI();
+          $("#檢查是否有新資料").text("每5秒檢查是否有新資料");
           clearInterval(updateInterval);          
           //設定 timer 固定檢查身高體重BMI是否有新資料
           updateInterval = setInterval( async function () {
             //console.log("check new data");
-            newRecNum = await read身高體重BMI資料筆數();
-            新增未登錄資料hwBMI();
-            console.log(newRecNum);
-
-//            if (newRecNum > bodyCompositionResult.length) {
-//              $("#更新section").show();
-//            }                           
-          }, 6000); // use 60000 as interval for production           
+            //newRecNum = await read身高體重BMI資料筆數();
+            //console.log(newRecNum); 
+            $("#檢查是否有新資料").text("檢查是否有新資料...");
+            await 新增未登錄資料hwBMI();
+            $("#檢查是否有新資料").text("每5秒檢查是否有新資料");
+            
+          }, 5000);        
         }
                 
         function dateTimeConv(timestamp){
@@ -989,7 +993,7 @@
                 readErr=true;
               } else {
                 returnObj=JSON.parse(returnData);
-                console.log(returnObj.length, returnObj[0].量測簡要)
+                //console.log(returnObj.length, returnObj[0].量測簡要)
               }
                 
               var prevTime="";
@@ -1031,7 +1035,7 @@
               
               const distinct = (value, index, self) => { return self.indexOf(value) === index;}
               
-              console.log(bodyCompositionResult);
+              //console.log(bodyCompositionResult);
               var 有報告的人=[];
               for (var i=0; i<bodyCompositionResult.length;i++) 有報告的人.push(bodyCompositionResult[i][1]); 
               var 有報告不同名人數=有報告的人.filter(distinct).length;
@@ -1070,12 +1074,12 @@
                 readErr=true;
               } else {
                 returnObj=JSON.parse(returnData);
-                console.log(returnObj);
+                //console.log(returnObj);
                 
                 var returnObjKeys=Object.keys(returnObj);
                 for (var i=0; i < returnObjKeys.length; i++){
                   //console.log(i, returnObj[returnObjKeys[i]]);
-                  console.log(returnObj[returnObjKeys[i]].id, returnObj[returnObjKeys[i]].measure_time );
+                  //console.log(returnObj[returnObjKeys[i]].id, returnObj[returnObjKeys[i]].measure_time );
                   if (身高體重BMI資料[returnObj[returnObjKeys[i]].id]==undefined) {
                     身高體重BMI資料[returnObj[returnObjKeys[i]].id]={};
                   }
@@ -1173,7 +1177,9 @@
           $.loading.end();
         }
         
-        function show_measurements(rec_num){ 
+        async function show_measurements(rec_num){ 
+          await read身高體重BMI資料();
+          
           console.log(rec_num);
           $("#charts").hide();
           if (身高體重BMI資料[memberResult[rec_num][0]]==undefined) {
@@ -1281,14 +1287,14 @@
         }
                
         
-        function show_membership_page(){
+        async function show_membership_page(){
           $(".page-wrapper").hide(); // hide all pages with page-wrapper class
           $(".sidebar-item").css("color","white")
 
           $("#membership-page").show(); 
-          queryMermbers();
+          await queryMermbers();
           if (!index_is_loaded) {
-            queryMermbers();
+            await queryMermbers();
             index_is_loaded = true;     
           }
         }        
@@ -1687,43 +1693,6 @@
           
           return             
         }     
-        
-        var rec=0;
-        async function 新增未登錄資料hwBMI(){
-          await read未登錄資料hwBMI(未登錄資料hwBMI);
-          console.log(未登錄資料hwBMI);
-          
-          var prependHtml="";
-          //for (unchecked_rec in 未登錄資料hwBMI) {
-          var new_rec_keys = Object.keys(未登錄資料hwBMI);
-          for (var i=new_rec_keys.length-1; i>-1; i--) {
-            var new_id    = 未登錄資料hwBMI[new_rec_keys[i]].id;
-            var new_name  = 會員資料hwBMI[new_id].名字;
-            var new_weight= 未登錄資料hwBMI[new_rec_keys[i]].net_weight;            
-            var new_height= 未登錄資料hwBMI[new_rec_keys[i]].height;            
-            var new_bmi   = 未登錄資料hwBMI[new_rec_keys[i]].bmi;   
-            var nowStr    = 未登錄資料hwBMI[new_rec_keys[i]].measure_time;   
-            console.log(new_id, new_name, new_weight, new_height, new_bmi, nowStr);
-        
-            var recNoStr= recNo.toString();    
-
-            prependHtml = prependHtml +
-              '<div style="margin-top:10px" id=' + '"rec' + recNoStr + '"><button class="確定登錄按鈕' + 
-              '" id="rb' + recNoStr + '" onClick="確定登錄按鈕('+ recNoStr +')" >確定登錄</button>' +
-              '<span style="font-family:Noto Sans TC; font-size:18px; margin-left:0px">' + new_name +
-              '<span style="font-family:Noto Sans Mono; font-size:18px"> '+ nowStr+ ' </span>' + 
-
-              '</span>' + '<br><span style="font-family:Noto Sans Mono; font-size:14px; margin-left:0px">' + 
-              ' 體重:' + new_weight + '公斤, 身高:' + new_height + '公分, BMI:' + new_bmi + ' </span>'+
-              '</div>';      
-
-            recNo++;
-          }
-          //console.log(prependHtml);
-
-          $("#未登錄記錄表").html(prependHtml);          
-
-        }        
         
       </script>
       
