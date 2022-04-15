@@ -24,7 +24,7 @@
     </nav>
     <br>
     <a style="color:white; margin-left:20px;">已登錄記錄</a>
-    <button class="確定登錄按鈕" onClick="$('#已登錄記錄').html('')">清除紀錄</button>
+    <button class="確定登錄按鈕" onClick="清除已登錄記錄()">清除紀錄</button>
     <a style="color:white; float:right; margin-right:10px;">登出後，紀錄自動清除</a>
     <nav style="color:white;margin-left:20px; margin-right:10px; height:203px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       
       <ul id="已登錄記錄" style="padding:10px">
@@ -132,7 +132,7 @@
       
       新增未登錄資料hwBMI();
       
-      checkInfoHtml = checkInfoHtml + checkInfo;
+      checkInfoHtml = checkInfo + checkInfoHtml;
       $("#已登錄記錄").html(checkInfoHtml);          
 
     }
@@ -153,6 +153,10 @@
       //return(未登錄資料hwBMI);
     }
     
+    function 清除已登錄記錄() {
+      checkInfoHtml = "";
+      $("#已登錄記錄").html(checkInfoHtml);       
+    }
     
   </script>
 <!--</div>-->
