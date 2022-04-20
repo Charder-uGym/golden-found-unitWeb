@@ -625,8 +625,9 @@
                       "刪除後將無法回復"
                      )
              ){
-            // call api to delete, 電話，SN，量測時間
-            //apiUrl = 身體組成apiBase+"?API=xx&Unit="+客戶名稱;
+            // call api to delete, ex. ?API=40&UserPhone=0955039022&MachineSN=T20002687&MeasureTime=1648791100466
+            //apiUrl = 身體組成apiBase+"?API=40&UserPhone="0955039022&MachineSN=T20002687&MeasureTime=1648791100466
+ 
             apiUrl = 身體組成apiBase+"";
             await fetch(apiUrl)
             .then(function(response) {
@@ -636,10 +637,10 @@
               console.log(apiUrl, result);
             });  
                     
-            
+            alert("刪除功能還在開發中");
             
             // 重新讀取資料及更新 table
-            read身體組成資料();
+            //read身體組成資料();
           }
         }
         
