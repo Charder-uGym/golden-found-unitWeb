@@ -154,8 +154,8 @@
                             <th id="ml-量測日期">量測日期</th>
                             <th id="ml-姓名">姓名</th>
                             <th id="ml-電話">電話</th>
-                            <th id="ml-健康分數">健康分數</th>                
-                            <th id="ml-完成登錄"></th>
+                            <th id="ml-健康分數">分數</th>                
+                            <th id="ml-查看報告"></th>
                          </tr>
                         </thead>
                       </table>
@@ -511,6 +511,12 @@
         var allDataForWeight=[];
         var allDataForBMI=[];        
         var checkInfoHtml="";
+        var 身體組成報告可刪除=false;
+        var 身體組成apiBase="";
+        
+        var bodyCompositionTable;
+        var memberTable;
+        var hwBMIMeasurementsTable;        
         
         var viewer = new ViewBigimg();
 
@@ -526,81 +532,116 @@
         }        
         
         $("#password").focus();
-
-        var bodyCompositionTable =$('#身體組成紀錄').DataTable( {
-          dom: 'Bfrtip',
-          buttons: [
-            { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
-            { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
-
-          ],            
-          order: [[ 0, "desc" ], [ 4, "desc" ] ],
-          select: true,
-          data: bodyCompositionResult,    
-          pageLength: 8,
-          columnDefs: [
-            { targets: -1, 
-              render: function (data, type, row, meta) {  
-                //console.log("***********", type);
-                return  `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick="showReport(`+data+`)">`+'查看報告'+`</button>`;
-              },
-            },                             
-          ]           
-        } );
         
-        var memberTable =$('#身高體重BMI會員').DataTable( {
-          dom: 'Bfrtip',
-          buttons: [
-        //                'copyHtml5',
-        //                'excelHtml5',
-        //                'csvHtml5',
-        //                'pdfHtml5'
-        //  { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
-            { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
+        function initTables(){
 
-          ],            
-          order: [[ 0, "asc" ]],
-          data: memberResult,    
-          pageLength: 8,
-          columnDefs: [
-            { targets: -1, 
-              render: function (data, type, row, meta) {  
-                return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="show_measurements(`+meta.row+`)">`+'查看紀錄'+`</button>`;
-              },
-            },            
-//            { targets: -2, 
-//              render: function (data, type, row, meta) { 
-//                //console.log("bbb", meta);
-//                return  `<button class="確定登錄按鈕" onClick="alert('尚未完成')">`+'修改資料'+`</button>`;     
-//                
-//                // checkbox 留著參考
-//                //if (data==true) return  '<i class="fa fa-check-square-o" aria-hidden="true"></i><span //style="display:none" >Y</span>';
-//                //else            return  '<i class="fa fa-times" aria-hidden="true"></i><span //style="display:none">N</span>';
-//
-//              },
-//            },                 
-          ]           
-        } );
+          bodyCompositionTable =$('#身體組成紀錄').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [
+              { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
+              { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
+
+            ],            
+            order: [[ 0, "desc" ], [ 4, "desc" ] ],
+            select: true,
+            data: bodyCompositionResult,    
+            pageLength: 8,
+            columnDefs: [
+              { targets: -1, 
+                render: function (data, type, row, meta) {  
+                  //console.log("***********", type);
+                  return  (!身體組成報告可刪除)?
+                    `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick = "showReport(`+data+`)">`+'查看報告'+`</button>`:
+                    `<button id="checkDetails`+data.toString()+`" class="確定登錄按鈕" onClick = "showReport(`+data+`)">`+'查看'+`</button>
+                    <button id="delReport`+data.toString()+`" class="刪除按鈕" onClick = "delReport(`+data+`)">`+'刪除'+`</button>`;
+                },
+              },                             
+            ]           
+          } );
+
+          memberTable =$('#身高體重BMI會員').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [
+          //                'copyHtml5',
+          //                'excelHtml5',
+          //                'csvHtml5',
+          //                'pdfHtml5'
+          //  { "extend": 'csv', "text":'<span id="ml-匯出CSV">匯出 CSV</span>',"className": 'btn-gradient-primary font-weight-bold' },
+              { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
+
+            ],            
+            order: [[ 0, "asc" ]],
+            data: memberResult,    
+            pageLength: 8,
+            columnDefs: [
+              { targets: -1, 
+                render: function (data, type, row, meta) {  
+                  return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="show_measurements(`+meta.row+`)">`+'查看紀錄'+`</button>`;
+                },
+              },            
+  //            { targets: -2, 
+  //              render: function (data, type, row, meta) { 
+  //                //console.log("bbb", meta);
+  //                return  `<button class="確定登錄按鈕" onClick="alert('尚未完成')">`+'修改資料'+`</button>`;     
+  //                
+  //                // checkbox 留著參考
+  //                //if (data==true) return  '<i class="fa fa-check-square-o" aria-hidden="true"></i><span //style="display:none" >Y</span>';
+  //                //else            return  '<i class="fa fa-times" aria-hidden="true"></i><span //style="display:none">N</span>';
+  //
+  //              },
+  //            },                 
+            ]           
+          } );
+
+          hwBMIMeasurementsTable =$('#身高體重BM量測記錄表').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [
+              { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
+
+            ],            
+            order: [[ 0, "desc" ]],
+            data: hwBMIResult,    
+            pageLength: 8,
+            columnDefs: [
+              { targets: -1, 
+                render: function (data, type, row, meta) {  
+                  return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="draw_hwBMI_charts(`+meta.row+`)">`+'圖表顯示'+`</button>`;
+                },
+              },                            
+            ]           
+          } );
+
+        }
         
-
-        var hwBMIMeasurementsTable =$('#身高體重BM量測記錄表').DataTable( {
-          dom: 'Bfrtip',
-          buttons: [
-            { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
-
-          ],            
-          order: [[ 0, "desc" ]],
-          data: hwBMIResult,    
-          pageLength: 8,
-          columnDefs: [
-            { targets: -1, 
-              render: function (data, type, row, meta) {  
-                return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="draw_hwBMI_charts(`+meta.row+`)">`+'圖表顯示'+`</button>`;
-              },
-            },                            
-          ]           
-        } );
-                   
+        async function delReport(index){
+          console.log(bodyCompositionResult[index]);
+          var tmp_rep = bodyCompositionResult[index];
+          
+          if (confirm("確定要刪除此紀錄?\n\n"+
+                      "日期: "+tmp_rep[0]+"\n"+
+                      "姓名: "+tmp_rep[1]+"\n"+
+                      "電話: "+tmp_rep[2]+"\n"+
+                      "分數: "+tmp_rep[3]+"\n\n"+
+                      "刪除後將無法回復"
+                     )
+             ){
+            // call api to delete, 電話，SN，量測時間
+            //apiUrl = 身體組成apiBase+"?API=xx&Unit="+客戶名稱;
+            apiUrl = 身體組成apiBase+"";
+            await fetch(apiUrl)
+            .then(function(response) {
+              return(response.text());
+            })
+            .then(function(result) {
+              console.log(apiUrl, result);
+            });  
+                    
+            
+            
+            // 重新讀取資料及更新 table
+            read身體組成資料();
+          }
+        }
         
         function showReport(index){
           LTindex = index;
@@ -781,6 +822,9 @@
               } else {
                 returnObj=JSON.parse(returnData);
                 客戶名稱=returnObj.客戶名稱;
+                身體組成apiBase=returnObj.apiBase;
+                if (returnObj.bodyReportDeleteable!=undefined) 身體組成報告可刪除=true;
+                
                 for (var i=0; i<returnObj.使用設備.length; i++){
                   if (returnObj.使用設備[i].includes("身體組成")) 使用身體組成=true;
                   if (returnObj.使用設備[i].includes("身高體重")) 使用身高體重BMI=true;
@@ -818,6 +862,8 @@
           if (使用身體組成)    $("#ml-身體組成資料").show();
           if (使用身高體重BMI) {$("#ml-身高體重BMI").show(); read身高體重BMI資料();}
           if (使用握力器)      $("#ml-握力資料").show();
+          
+          initTables();
           
           alert("歡迎登入 "+客戶名稱+" 查詢系統! \n使用設備有,\n"+使用設備Str+"\n使用後請記得登出");
           
@@ -1022,7 +1068,9 @@
                   returnObj[i].量測簡要.HealthScore,
                   //returnObj[i].量測簡要.量測要求編號,
                   i,
-                  returnObj[i].量測簡要.PicUrl
+                  returnObj[i].量測簡要.量測時間,                  
+                  returnObj[i].量測簡要.PicUrl,
+                  returnObj[i].量測簡要.機器序號                  
                 ];
                 
                 prevTime = measureTime;
