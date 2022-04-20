@@ -617,18 +617,20 @@
           console.log(bodyCompositionResult[index]);
           var tmp_rep = bodyCompositionResult[index];
           
-          if (confirm("確定要刪除此紀錄?\n\n"+
+          if (prompt("確定要刪除此紀錄?\n\n"+
                       "日期: "+tmp_rep[0]+"\n"+
                       "姓名: "+tmp_rep[1]+"\n"+
                       "電話: "+tmp_rep[2]+"\n"+
                       "分數: "+tmp_rep[3]+"\n\n"+
-                      "刪除後將無法回復"
-                     )
+                      "刪除後將無法回復，請輸入 電話 確認", ""
+                     ) == tmp_rep[2]
              ){
             // call api to delete, ex. ?API=40&UserPhone=0955039022&MachineSN=T20002687&MeasureTime=1648791100466
-            //apiUrl = 身體組成apiBase+"?API=40&UserPhone="0955039022&MachineSN=T20002687&MeasureTime=1648791100466
- 
-            apiUrl = 身體組成apiBase+"";
+            //apiUrl=身體組成apiBase+"?API=40&UserPhone="+tmp_rep[2]+"&MachineSN="+tmp_rep[7]+"&MeasureTime="+tmp_rep[5].toString());
+
+            apiUrl="localhost:5000?API=40&UserPhone=" + tmp_rep[2] + "&MachineSN=" + tmp_rep[7] + "&MeasureTime="+tmp_rep[5].toString();
+            
+            //apiUrl = 身體組成apiBase+"";
             await fetch(apiUrl)
             .then(function(response) {
               return(response.text());
@@ -636,11 +638,9 @@
             .then(function(result) {
               console.log(apiUrl, result);
             });  
-                    
-            alert("刪除功能還在開發中");
-            
+                                
             // 重新讀取資料及更新 table
-            //read身體組成資料();
+            read身體組成資料();
           }
         }
         
@@ -1068,10 +1068,10 @@
                   returnObj[i].量測簡要.使用者電話,
                   returnObj[i].量測簡要.HealthScore,
                   //returnObj[i].量測簡要.量測要求編號,
-                  i,
-                  returnObj[i].量測簡要.量測時間,                  
+                  i,                 
                   returnObj[i].量測簡要.PicUrl,
-                  returnObj[i].量測簡要.機器序號                  
+                  returnObj[i].量測簡要.機器序號,
+                  returnObj[i].量測簡要.量測時間,                   
                 ];
                 
                 prevTime = measureTime;
