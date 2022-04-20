@@ -628,7 +628,11 @@
             // call api to delete, ex. ?API=40&UserPhone=0955039022&MachineSN=T20002687&MeasureTime=1648791100466
             //apiUrl=身體組成apiBase+"?API=40&UserPhone="+tmp_rep[2]+"&MachineSN="+tmp_rep[7]+"&MeasureTime="+tmp_rep[5].toString());
 
-            apiUrl="localhost:5000?API=40&UserPhone=" + tmp_rep[2] + "&MachineSN=" + tmp_rep[7] + "&MeasureTime="+tmp_rep[5].toString();
+            alert("刪除功能開發中");
+            
+            return;
+            
+            apiUrl="localhost:5000?API=40&UserPhone=" + tmp_rep[2] + "&MachineSN=" + tmp_rep[6] + "&MeasureTime="+tmp_rep[7].toString();
             
             //apiUrl = 身體組成apiBase+"";
             await fetch(apiUrl)
