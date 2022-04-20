@@ -1247,7 +1247,7 @@
             return;
           }
                     
-          $("#ml-量測紀錄標題").text("ID: "+memberResult[rec_num][0]+" "+memberResult[rec_num][1]+" 量測記錄");
+          $("#ml-量測紀錄標題").text("ID: "+memberResult[rec_num][0]+", 姓名:"+memberResult[rec_num][1]+" 量測記錄");
           
           //console.log(memberResult[rec_num][0]);
           
@@ -1382,10 +1382,11 @@
         
           chartRange=0; //display in week
           
-          var selectID=$("#ml-量測紀錄標題").text().split(" ");
-          console.log(selectID[1]);
+          var tmpArr=$("#ml-量測紀錄標題").text().split(",");
+          var selectID=tmpArr[0].substr(4);
+          console.log(selectID);
           
-          所有量測數據=身高體重BMI資料[selectID[1]];
+          所有量測數據=身高體重BMI資料[selectID];
           
           chartCenterDate = new Date(hwBMIResult[itemSelect][0][0]).getTime()
           getDataOfAweek(chartCenterDate);
@@ -1432,8 +1433,13 @@
 
               if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
                 weekLabelsforChart.push(所有量測數據[rec].measure_time);
-
-                weekDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+                
+                //當沒有身高資料時，height是 "0"，不是"0cm"
+                if (所有量測數據[rec].height=="0") {
+                  weekDataForHeight.push(0);
+                } else {
+                  weekDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+                }
                 weekDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
                 weekDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
                 matched=true;
