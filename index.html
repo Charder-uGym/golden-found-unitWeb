@@ -235,10 +235,16 @@
           
           <div id = "add_member_form" class="add_member_form" style="display:none">
             <h2 style="font-size:20px;font-weight:bold">新增/修改會員</h2>
+            <div id="自動序號section">
+              <button onclick="ID自動續號()" style="font-size:14px; background-color:#FF4350; color:white; border-width:0px; border-radius:5px; padding:2px;width:80px;height:22px; float:right; margin-top:-43px" >ID 自動續號 </button>
+              <div id="最後ID" style="float:right; font-size:14px; margin-top:-41px; margin-right:90px">-------</div>
+              <input id="ID前綴" maxlength="3" style="float:right; font-size:14px; margin-top:-42px; margin-right:155px; width: 60px;height: 22px"/>
+              <div style="float:right; font-size:14px; margin-top:-41px; margin-right:220px">最後ID:</div>   
+            </div>
             <div class="" autocomplete="off">
-              ID: <input placeholder="ID" type="text" id="new_member_id" >
-              名字: <input placeholder="名字" type="text" id="new_member_name">
-              電話號碼: <input placeholder="電話號碼" type="text" id="new_member_phone">
+              ID: <input placeholder="請輸入 ID，或點擊 ID 自動續號" type="text" id="new_member_id" >
+              名字: <input type="text" id="new_member_name">
+              電話號碼: <input type="text" id="new_member_phone">
               <button onClick="add_member()" >新增 / 修改 會員</button>
               <button onClick="hide_add_member_form()" style="background-color:lightgray; color:white; margin-top:20px">取消</button>
             </div>
@@ -605,7 +611,9 @@
             columnDefs: [
               { targets: -1, 
                 render: function (data, type, row, meta) {  
-                  return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="draw_hwBMI_charts(`+meta.row+`)">`+'圖表顯示'+`</button>`;
+                  return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="draw_hwBMI_charts(`+meta.row+`)">`+'圖表'+`</button>
+                  
+                  <button id="delReportHwBMI`+meta.row.toString()+`" class="刪除按鈕" onClick = "delReportHwBMI(`+meta.row+`)">`+'刪除'+`</button>`
                 },
               },                            
             ]           
@@ -948,6 +956,7 @@
           await show_membership_page()
           
           $("#檢查是否有新資料").text("檢查是否有新資料...");
+          console.log("檢查是否有新資料...");
           await 新增未登錄資料hwBMI();
           $("#檢查是否有新資料").text("每5秒檢查是否有新資料");
           clearInterval(updateInterval);          
@@ -986,7 +995,49 @@
           
           return(未登錄資料hwBMI);
         }
-                        
+                  
+
+        async function 新增未登錄資料hwBMI(){
+          await read未登錄資料hwBMI();
+          //console.log(未登錄資料hwBMI);
+
+          var prependHtml="";
+          //for (unchecked_rec in 未登錄資料hwBMI) {
+          var new_rec_keys = Object.keys(未登錄資料hwBMI);
+          for (var i=new_rec_keys.length-1; i>0; i--) {
+            var new_id    = 未登錄資料hwBMI[new_rec_keys[i]].id;
+
+            if(會員資料hwBMI[new_id]==undefined) {
+              var new_name  = new_id+"不是會員";
+            } else {
+              var new_name  = 會員資料hwBMI[new_id].名字;        
+            }
+
+            var new_weight= 未登錄資料hwBMI[new_rec_keys[i]].net_weight;            
+            var new_height= 未登錄資料hwBMI[new_rec_keys[i]].height;            
+            var new_bmi   = 未登錄資料hwBMI[new_rec_keys[i]].bmi;   
+            var nowStr    = 未登錄資料hwBMI[new_rec_keys[i]].measure_time;   
+            //console.log(new_id, new_name, new_weight, new_height, new_bmi, nowStr);
+
+            var recNoStr= recNo.toString();    
+
+            prependHtml = prependHtml +
+              '<div style="margin-top:10px" id=' + '"rec' + new_rec_keys[i] + '"><button class="確定登錄按鈕' + 
+              '" id="rb' + recNoStr + '" onClick="確定登錄按鈕(\''+ new_rec_keys[i] +'\')" >確定登錄</button>' +
+              '<span style="font-family:Noto Sans TC; font-size:18px; margin-left:0px">' + new_name +
+              '<span style="font-family:Noto Sans Mono; font-size:18px"> '+ nowStr+ ' </span>' + 
+
+              '</span>' + '<br><span style="font-family:Noto Sans Mono; font-size:14px; margin-left:0px">' + 
+              ' 體重:' + new_weight + '公斤, 身高:' + new_height + '公分, BMI:' + new_bmi + ' </span>'+
+              '</div>';    
+
+            recNo++;
+          }
+          //console.log(prependHtml);
+          $("#未登錄記錄表").html(prependHtml);          
+
+        }        
+                    
         async function read會員資料hwBMI() {
           //var 會員資料hwBMI;
           apiUrl = apiUrlBase+"?API=04&Unit="+客戶名稱;
@@ -1171,6 +1222,29 @@
         } 
         
         function show_add_member_form(){
+          
+          var 客戶ID前綴=localStorage.getItem(客戶名稱);
+          if (客戶ID前綴!=null ) 
+            $("#ID前綴").val(客戶ID前綴);
+          else                  
+            $("#ID前綴").val("000");
+          
+          var maxID=-1;
+          var maxIDstr;
+          for (var i=0; i<Object.keys(memberResult).length; i++){
+            if (memberResult[i][0].substr(0,3)==$("#ID前綴").val()) {
+              
+              if (parseInt(memberResult[i][0].substr(3,7))>maxID){
+                maxID=parseInt(memberResult[i][0].substr(3,7));
+                maxIDstr=memberResult[i][0].substr(3,7);
+              }
+            }
+          }
+          if (maxID==-1)
+            $("#最後ID").text("-------");
+          else 
+            $("#最後ID").text(maxIDstr);       
+          
           $("#new_member_id").val("");
           $("#new_member_name").val("");
           $("#new_member_phone").val("");   
@@ -1237,13 +1311,15 @@
           $.loading.end();
         }
         
+        var indexForDisplayingCharts;
         async function show_measurements(rec_num){ 
+          indexForDisplayingCharts = rec_num;
           await read身高體重BMI資料();
           
           console.log(rec_num);
           $("#charts").hide();
           if (身高體重BMI資料[memberResult[rec_num][0]]==undefined) {
-            alert("此會員尚未有量測資料");
+            alert("此會員沒有量測資料");
             return;
           }
                     
@@ -1260,6 +1336,7 @@
             data.push([measure_rec[rec].net_weight]);
             data.push([measure_rec[rec].height]);
             data.push([measure_rec[rec].bmi]);
+            data.push([measure_rec[rec].sn]);
             hwBMIResult.push(data);
           }
           
@@ -1370,6 +1447,41 @@
           $("#hwBMI-measurements-page").show(); 
 
         } 
+        
+        async function delReportHwBMI(index){
+          console.log(index);
+          console.log(hwBMIResult[index][0][0], hwBMIResult[index][3][0]); 
+          var confirmToDel=prompt("此筆資料將永遠被刪除,\n 請輸入 BMI 數值再度確認");
+          if (confirmToDel==null) return;
+          
+          if (confirmToDel==hwBMIResult[index][3][0]){
+            var datTime = new Date(hwBMIResult[index][0][0]);
+            var dataKey=hwBMIResult[index][4][0]+"_"+(datTime.getTime(0)+8*60*60*1000).toString();
+            console.log(dataKey);
+            await 刪除一筆量測記錄hwBMI(dataKey);
+
+            身高體重BMI資料={};
+            read身高體重BMI資料();
+            show會員資料表();
+            show_measurements(indexForDisplayingCharts);
+          } else {
+            alert("BMI 輸入值不符合")
+          }
+        }
+        
+        // API=14 刪除一筆量測記錄hwBMI
+        // for test: http://localhost:5000/?API=14&Unit=金機興業&Key=sn_timestamp
+        async function 刪除一筆量測記錄hwBMI(keyStr) {
+          apiUrl = apiUrlBase+"?API=14&Unit="+客戶名稱+"&Key="+keyStr;
+          console.log(apiUrl);
+          await fetch(apiUrl)
+          .then(function(response) {
+            return(response.text());
+          })
+          .then(function(result) {        
+            console.log(result);
+          });  
+        }        
         
         function draw_hwBMI_charts(itemSelect){          
           //$("#hwBMI_blank").hide();          
@@ -1737,7 +1849,8 @@
           myChartHeight.update();        
           myChartWeight.update();        
           myChartBMI.update();        
-        }         
+        } 
+        
         async function queryMermbers(){
           
           await read會員資料hwBMI();
@@ -1759,6 +1872,69 @@
           
           return             
         }     
+        
+        $("#ID前綴").change(function(){
+          var ID前綴=$("#ID前綴").val();
+          //console.log(ID前綴);
+          
+          if(ID前綴[0]=="5") {
+            alert("抱歉，ID前綴 5** 開頭為保留，不能使用");
+            return;
+          }          
+          
+          //將空白改為 "0"
+          var newID前綴="";
+          var incl_space=false;
+          for (var i=0; i<ID前綴.length; i++) {
+            if (ID前綴[i]==" ") {
+              newID前綴+="0"
+              incl_space=true;
+            }
+            else newID前綴+=ID前綴[i];
+          }
+          
+          if (incl_space) alert("ID前綴內 空白 轉成 '0'")
+          //console.log(newID前綴);
+          
+          if (newID前綴.length==0) {
+            alert("ID前綴 空字串，將使用 000");
+            newID前綴="000";
+          } else if (newID前綴.length==1){
+            alert("ID前綴將使用 "+newID前綴+"00");
+            newID前綴=newID前綴+"00";         
+          } else if (newID前綴.length==2){
+            alert("ID前綴將使用 "+newID前綴+"0");
+            newID前綴=newID前綴+"0";           
+          }                              
+          
+          $("#ID前綴").val(newID前綴); 
+          localStorage.setItem(客戶名稱, newID前綴);          
+          
+          var maxID=-1;
+          var maxIDstr;
+          for (var i=0; i<Object.keys(memberResult).length; i++){
+            if (memberResult[i][0].substr(0,3)==newID前綴) {
+              
+              if (parseInt(memberResult[i][0].substr(3,7))>maxID){
+                maxID=parseInt(memberResult[i][0].substr(3,7));
+                maxIDstr=memberResult[i][0].substr(3,7);
+              }
+            }
+          }
+          
+          if (maxID==-1)
+            $("#最後ID").text("-------");
+          else 
+            $("#最後ID").text(maxIDstr);
+          
+        });      
+
+        function ID自動續號(){
+          var lastIDstr=$("#最後ID").text();
+          var nextID=(lastIDstr=="-------")?1:(parseInt(lastIDstr)+1);
+          var nextIDstr = $("#ID前綴").val()+nextID.toString().padStart(7,0);
+          $("#new_member_id").val(nextIDstr);
+        }
         
       </script>
       

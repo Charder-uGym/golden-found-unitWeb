@@ -14,7 +14,7 @@
 
     <a style="margin-left:20px; margin-top:0px; padding-top:0px; color:white; font-size:20px; font-weight:bold">身高體重 BMI 尚未登錄資料</a>
     
-    <a id="檢查是否有新資料" style="color:white; float:right; margin-right:10px; margin-top:7px;">每5秒檢查是否有新資料</a>
+    <a id="檢查是否有新資料" style="color:white; float:right; margin-right:10px; margin-top:7px;">每5秒檢查是否有新資料</a><br>
 
 
 <!--    <nav style="color:white;margin-left:20px; margin-right:10px; height:703px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       -->
@@ -77,54 +77,16 @@
       $("#未登錄記錄表").prepend(prependHtml);
       
     } 
-    
-    // 模擬資料，不再使用
-    //新增測試資料();
-    //var autoUpdateInterval = setInterval('新增測試資料()', 5000);    
-    
-    async function 新增未登錄資料hwBMI(){
-      await read未登錄資料hwBMI();
-      //console.log(未登錄資料hwBMI);
-
-      var prependHtml="";
-      //for (unchecked_rec in 未登錄資料hwBMI) {
-      var new_rec_keys = Object.keys(未登錄資料hwBMI);
-      for (var i=new_rec_keys.length-1; i>0; i--) {
-        var new_id    = 未登錄資料hwBMI[new_rec_keys[i]].id;
-        var new_name  = 會員資料hwBMI[new_id].名字;
-        var new_weight= 未登錄資料hwBMI[new_rec_keys[i]].net_weight;            
-        var new_height= 未登錄資料hwBMI[new_rec_keys[i]].height;            
-        var new_bmi   = 未登錄資料hwBMI[new_rec_keys[i]].bmi;   
-        var nowStr    = 未登錄資料hwBMI[new_rec_keys[i]].measure_time;   
-        console.log(new_id, new_name, new_weight, new_height, new_bmi, nowStr);
-
-        var recNoStr= recNo.toString();    
-
-        prependHtml = prependHtml +
-          '<div style="margin-top:10px" id=' + '"rec' + new_rec_keys[i] + '"><button class="確定登錄按鈕' + 
-          '" id="rb' + recNoStr + '" onClick="確定登錄按鈕(\''+ new_rec_keys[i] +'\')" >確定登錄</button>' +
-          '<span style="font-family:Noto Sans TC; font-size:18px; margin-left:0px">' + new_name +
-          '<span style="font-family:Noto Sans Mono; font-size:18px"> '+ nowStr+ ' </span>' + 
-
-          '</span>' + '<br><span style="font-family:Noto Sans Mono; font-size:14px; margin-left:0px">' + 
-          ' 體重:' + new_weight + '公斤, 身高:' + new_height + '公分, BMI:' + new_bmi + ' </span>'+
-          '</div>';    
-
-        recNo++;
-      }
-      //console.log(prependHtml);
-      $("#未登錄記錄表").html(prependHtml);          
-
-    }        
-            
- 
+              
     async function 確定登錄按鈕(id){
       console.log(typeof id, id);
       
       var recToBeDeleted=未登錄資料hwBMI[id];
       
+      var 刪除紀錄ID名 = (會員資料hwBMI[recToBeDeleted.id]==undefined)?recToBeDeleted.id:會員資料hwBMI[recToBeDeleted.id].名字;
+      
       var checkInfo = '<div style="font-size:16px">'+
-                      recToBeDeleted.measure_time+' '+會員資料hwBMI[recToBeDeleted.id].名字+' 已被登錄'+
+                      recToBeDeleted.measure_time+' '+刪除紀錄ID名+' 已被登錄'+
                       '<br></div>';
       
       
