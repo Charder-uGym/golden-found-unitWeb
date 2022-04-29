@@ -919,7 +919,7 @@
           $("#sidebar").hide(); 
           $("#ml-身體組成資料").hide(); 
           if (使用身高體重BMI) $("#ml-身高體重BMI").show();    
-          $("#ml-握力資料").hide()
+          if (使用握力器)      $("#ml-握力資料").show();
           $(".page-wrapper").hide(); // hide all pages with page-wrapper class
           $("#ml-head_title").text("身體組成報告");
           $("#ml-登入單位").text(客戶名稱);
@@ -944,8 +944,9 @@
           
         async function 顯示身高體重BMI畫面(){
           if (使用身體組成)    $("#ml-身體組成資料").show();          
-          $("#ml-身高體重BMI").hide()          
-          $("#ml-握力資料").hide()          
+          $("#ml-身高體重BMI").hide()  
+          if (使用握力器) $("#ml-握力資料").show();
+          
           $(".page-wrapper").hide(); // hide all pages with page-wrapper class
           $("#ml-head_title").text("身高體重BMI查詢");
           $("#ml-登入單位").text(客戶名稱);         
