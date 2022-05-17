@@ -613,7 +613,7 @@
                 render: function (data, type, row, meta) {  
                   return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="draw_charts(`+meta.row+`)">`+'圖表'+`</button>
                   
-                  <button id="delReportHwBMI`+meta.row.toString()+`" class="刪除按鈕" onClick = "delReportHwBMI(`+meta.row+`)">`+'刪除'+`</button>`
+                  <button id="delReportHwBMIdyno`+meta.row.toString()+`" class="刪除按鈕" onClick = "delReportHwBMIdyno(`+meta.row+`)">`+'刪除'+`</button>`
                 },
               },                            
             ]           
@@ -1346,11 +1346,17 @@
                   }
                   
                   握力資料[returnObj[returnObjKeys[i]].id][returnObj[returnObjKeys[i]].measure_time]=returnObj[returnObjKeys[i]];
+
+                  握力資料[returnObj[returnObjKeys[i]].id][returnObj[returnObjKeys[i]].measure_time].key=returnObjKeys[i];
                   
                   //console.log(typeof returnObj[returnObjKeys[i]].measure_time, returnObj[returnObjKeys[i]].measure_time );
                   var iso_tmp=(new Date(returnObj[returnObjKeys[i]].measure_time+8*60*60*1000)).toISOString();
-                  var time_tmp=iso_tmp.replace('T', ' ');                       
+                  var time_tmp=iso_tmp.replace('T', ' ');    
+                  
                   握力資料[returnObj[returnObjKeys[i]].id][returnObj[returnObjKeys[i]].measure_time].measure_time=time_tmp.substr(0,19);
+                  
+                  
+                                  
                 }
                 
               }
@@ -1525,7 +1531,7 @@
               data.push(measure_rec[rec].measure_time);
               data.push([measure_rec[rec].dynoLeftHand]+" kg");
               data.push([measure_rec[rec].dynoRightHand]+" kg");
-              data.push([measure_rec[rec].sn]);
+              data.push([measure_rec[rec].key]);
               dynoResult.push(data);
             }
 
@@ -1650,31 +1656,59 @@
 
         } 
         
-        async function delReportHwBMI(index){
+        async function delReportHwBMIdyno(index){
           console.log(index);
-          console.log(hwBMIResult[index][0][0], hwBMIResult[index][3][0]); 
-          var confirmToDel=prompt("此筆資料將永遠被刪除,\n 請輸入 BMI 數值再度確認");
-          if (confirmToDel==null) return;
           
-          if (confirmToDel==hwBMIResult[index][3][0]){
-            var datTime = new Date(hwBMIResult[index][0][0]);
-            var dataKey=hwBMIResult[index][4][0]+"_"+(datTime.getTime(0)+8*60*60*1000).toString();
-            console.log(dataKey);
-            await 刪除一筆量測記錄hwBMI(dataKey);
+          if (equip_type=="hwBMI") {
+            console.log(hwBMIResult[index][0][0], hwBMIResult[index][3][0]); 
+            var confirmToDel=prompt("此筆資料將永遠被刪除,\n 請輸入 BMI 數值再度確認");
+            if (confirmToDel==null) return;
 
-            身高體重BMI資料={};
-            read身高體重BMI資料();
-            show會員資料表();
-            show_measurements(indexForDisplayingCharts);
-          } else {
-            alert("BMI 輸入值不符合")
+            if (confirmToDel==hwBMIResult[index][3][0]){
+              var dateTime = new Date(hwBMIResult[index][0][0]);
+              var dataKey=hwBMIResult[index][4][0]+"_"+(dateTime.getTime(0)+8*60*60*1000).toString();
+              console.log(dataKey);
+              await 刪除一筆量測記錄hwBMIdyno(dataKey);
+
+              身高體重BMI資料={};
+              read身高體重BMI資料();
+              show會員資料表();
+              show_measurements(indexForDisplayingCharts);
+            } else {
+              alert("BMI 輸入值不符合")
+            }
           }
+          
+          if (equip_type=="dyno") { 
+            console.log(dynoResult[index][3][0]); 
+            var confirmToDel=prompt("此筆資料將永遠被刪除,\n 請輸入 左手握力 數值再度確認");
+            if (confirmToDel==null) return;
+
+            if ((confirmToDel+" kg")==dynoResult[index][1]){
+              await 刪除一筆量測記錄hwBMIdyno(dynoResult[index][3][0]);
+
+              握力資料={};
+              readDyno資料();
+              show會員資料表();
+              show_measurements(indexForDisplayingCharts);
+            } else {
+              alert("左手握力 輸入值不符合")
+            }
+          }          
+          
         }
         
-        // API=14 刪除一筆量測記錄hwBMI
+        // API=14/17 刪除一筆量測記錄(hwBMI or dyno)
         // for test: http://localhost:5000/?API=14&Unit=金機興業&Key=sn_timestamp
-        async function 刪除一筆量測記錄hwBMI(keyStr) {
-          apiUrl = apiUrlBase+"?API=14&Unit="+客戶名稱+"&Key="+keyStr;
+        async function 刪除一筆量測記錄hwBMIdyno(keyStr) {
+          if (equip_type=="hwBMI") {
+            apiUrl = apiUrlBase+"?API=14&Unit="+客戶名稱+"&Key="+keyStr;
+          } 
+          
+          if (equip_type=="dyno") {
+            apiUrl = apiUrlBase+"?API=17&Unit="+客戶名稱+"&Key="+keyStr;
+          }           
+          
           console.log(apiUrl);
           await fetch(apiUrl)
           .then(function(response) {
@@ -1683,7 +1717,7 @@
           .then(function(result) {        
             console.log(result);
           });  
-        }        
+        }                                
         
         function draw_charts(itemSelect){          
          
