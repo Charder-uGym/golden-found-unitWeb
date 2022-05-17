@@ -889,9 +889,9 @@ function getDataOfAweek(reqDate){
   所有量測數據=身高體重BMI資料["0000000000"];
   keyOfMeasurements=Object.keys(所有量測數據);      
   weekLabelsforChart=[];
-  weekDataForHeight=[];
-  weekDataForWeight=[];
-  weekDataForBMI=[];
+  weekDataForChart1=[];
+  weekDataForChart2=[];
+  weekDataForChart3=[];
 
   var timeZoneOffset = new Date().getTimezoneOffset();
   var UTC_delta = timeZoneOffset/(-60); // +8 in Taiwan
@@ -907,23 +907,23 @@ function getDataOfAweek(reqDate){
       if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
         weekLabelsforChart.push(所有量測數據[rec].measure_time);
 
-        weekDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
-        weekDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
-        weekDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
+        weekDataForChart1.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+        weekDataForChart2.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
+        weekDataForChart3.push(parseFloat(所有量測數據[rec].bmi));
         matched=true;
       }            
     }
     if (!matched) {
       weekLabelsforChart.push(matchFullDate);
-      weekDataForHeight.push(null);          
-      weekDataForWeight.push(null);          
-      weekDataForBMI.push(null);          
+      weekDataForChart1.push(null);          
+      weekDataForChart2.push(null);          
+      weekDataForChart3.push(null);          
     }
   }
 
-  console.log(weekDataForHeight);        
-  console.log(weekDataForWeight);        
-  console.log(weekDataForBMI);        
+  console.log(weekDataForChart1);        
+  console.log(weekDataForChart2);        
+  console.log(weekDataForChart3);        
 }
 
 function drawChart(){
@@ -932,8 +932,8 @@ function drawChart(){
   
   $("#chart_range").text(weekLabelsforChart[0].substr(0,10)+" ~ "+weekLabelsforChart[weekLabelsforChart.length-1].substr(0,10));
 
-  ctxH = $('#myChartHeight');
-  myChartHeight = new Chart(ctxH, {           
+  ctx1 = $('#myChart1');
+  myChart1 = new Chart(ctx1, {           
     type: 'line',
     data: {
       //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
@@ -944,7 +944,7 @@ function drawChart(){
         ],
         label: '身高(公分)',
         cubicInterpolationMode: 'monotone',                
-        data: weekDataForHeight
+        data: weekDataForChart1
       }]
     },
     options: {
@@ -973,8 +973,8 @@ function drawChart(){
     }            
   });    
 
-  ctxW = $('#myChartWeight');
-  myChartWeight = new Chart(ctxW, {
+  ctx2 = $('#myChart2');
+  myChart2 = new Chart(ctx2, {
     type: 'line',
     data: {
       //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
@@ -985,7 +985,7 @@ function drawChart(){
         ],
         label: '體重(公斤)',
         cubicInterpolationMode: 'monotone',
-        data: weekDataForWeight
+        data: weekDataForChart2
       }]
     },
     options: {
@@ -1014,8 +1014,8 @@ function drawChart(){
     } 
   });
 
-  ctxB = $('#myChartBMI');
-  myChartBMI = new Chart(ctxB, {
+  ctx3 = $('#myChart3');
+  myChart3 = new Chart(ctx3, {
     type: 'line',
     data: {
       //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
@@ -1026,7 +1026,7 @@ function drawChart(){
         ],
         label: 'BMI',
         cubicInterpolationMode: 'monotone',                
-        data: weekDataForBMI
+        data: weekDataForChart3
       }]
     },
     options: {

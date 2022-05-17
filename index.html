@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <script> 
-      var 版本="v1.1";
+      var 版本="v1.5";
       
       // login
       var loginUnit="";
@@ -181,9 +181,7 @@
         <!-- Page Wrapper -->
         <div class="page-wrapper" id="membership-page" style="margin-left:450px; display:none">
 
-          <!-- Page Content -->    
-
-                                   
+          <!-- Page Content -->                                       
           <div class="content container-fluid" style="margin-left:0px; width:600px">         
             <div class="crms-title row bg-white" >
               <div class="col ">
@@ -191,10 +189,10 @@
                   <span class="page-title-icon bg-gradient-primary text-white ">
                     <i class="fa fa-user-o" aria-hidden="true"></i>
                   </span>
-                  <span id="ml-資料標題"> 會員資料 </span>
-                  <button id="手動刷新hwBMI會員" style="font-size:14px; background-color:#FF4350; color:white; border-width:0px; border-radius:5px; padding-top:5px" onclick="手動刷新hwBMI會員()">刷新會員</button>
+                  <span id="ml-hwBMI會員標題"> 會員資料 </span>
+                  <button id="手動刷新會員" style="font-size:14px; background-color:#FF4350; color:white; border-width:0px; border-radius:5px; padding-top:5px" onclick="手動刷新會員()">刷新會員</button>
                   
-                  <span style="float:right;margin-top:5px">
+                  <span id="新增修改會員按鈕" style="float:right;margin-top:5px">
                     <button onClick="show_add_member_form()" style="border:none;background-color: transparent">
                       <i class="fa fa-plus" style="color:royalblue"> 新增/修改會員</i>                      
                     </button>
@@ -204,7 +202,7 @@
             </div>
 
             <!-- Content Starts -->            
-            <div id="會員資料表" class="row">
+            <div id="hwBMI會員資料表" class="row">
               <div class="col-md-12">
                 <div class="card mb-0">
                   <div class="card-body">
@@ -253,11 +251,9 @@
           <!-- /Page Content -->
         </div>
         <!-- /Page Wrapper -->
-
        
-        <!-- Page Wrapper -->
-        
-        <div class="page-wrapper" id="hwBMI-measurements-page" style="margin-left:450px; display:none">
+        <!-- Page Wrapper -->        
+        <div class="page-wrapper" id="measurements-page" style="margin-left:450px; display:none">
 
           <!-- Page Content -->               
           <div class="content container-fluid" style="margin-left:0px; width:600px">         
@@ -327,11 +323,11 @@
                 </div>
                 -->
 
-                <canvas id="myChartHeight" width="600px" height="200px" style="margin-top:5px"></canvas>   
+                <canvas id="myChart1" width="600px" height="200px" style="margin-top:5px"></canvas>   
 
-                <canvas id="myChartWeight" width="600px" height="200px" style="margin-top:10px"></canvas>   
+                <canvas id="myChart2" width="600px" height="200px" style="margin-top:10px"></canvas>   
 
-                <canvas id="myChartBMI" width="600px" height="200px" style="margin-top:10px"></canvas> 
+                <canvas id="myChart3" width="600px" height="200px" style="margin-top:10px"></canvas> 
                                                        
               </div>                  
             </div>
@@ -339,8 +335,7 @@
 
                                 
           <!-- /Page Content -->
-        </div>
-        
+        </div>        
         <!-- /Page Wrapper -->  
                
         <!-- Page Wrapper 沒被使用，留作參考-->
@@ -488,14 +483,19 @@
         var expire_is_loaded = false;
         var query_sessions_is_load = false;
 
+        var equip_type="hwBMI";
         var bodyCompositionResult=[];
         var 身高體重BMI資料={};
         var 未登錄資料hwBMI={};
         var 會員資料hwBMI;
+        var 握力資料={};
+        var 未登錄資料Dyno={};
+        var 會員資料dyno;        
         var newRecNum=0;
         var updateInterval;
         var memberResult=[];
         var hwBMIResult=[]; // result for table
+        var dynoResult=[]; // result for table
         var expResult=[];
         var querySessionsResult=[];
         var chartsInited=false;
@@ -505,24 +505,24 @@
         
         var keyOfMeasurements;      
         var weekLabelsforChart=[];
-        var weekDataForHeight=[];
-        var weekDataForWeight=[];
-        var weekDataForBMI=[];  
+        var weekDataForChart1=[];
+        var weekDataForChart2=[];
+        var weekDataForChart3=[];  
         var monthLabelsforChart=[];
-        var monthDataForHeight=[];
-        var monthDataForWeight=[];
-        var monthDataForBMI=[];    
+        var monthDataForChart1=[];
+        var monthDataForChart2=[];
+        var monthDataForChart3=[];    
         var allLabelsforChart=[];
-        var allDataForHeight=[];
-        var allDataForWeight=[];
-        var allDataForBMI=[];        
+        var allDataForChart1=[];
+        var allDataForChart2=[];
+        var allDataForChart3=[];        
         var checkInfoHtml="";
         var 身體組成報告可刪除=false;
         var 身體組成apiBase="";
         
         var bodyCompositionTable;
         var memberTable;
-        var hwBMIMeasurementsTable;        
+        var MeasurementsTable;        
         
         var viewer = new ViewBigimg();
 
@@ -599,7 +599,7 @@
             ]           
           } );
 
-          hwBMIMeasurementsTable =$('#身高體重BM量測記錄表').DataTable( {
+          MeasurementsTable =$('#身高體重BM量測記錄表').DataTable( {
             dom: 'Bfrtip',
             buttons: [
               { "extend": 'excel', "text":'<span id="ml-匯出EXCEL">匯出 EXCEL</span>',"className": 'btn-gradient-primary font-weight-bold' }
@@ -611,7 +611,7 @@
             columnDefs: [
               { targets: -1, 
                 render: function (data, type, row, meta) {  
-                  return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="draw_hwBMI_charts(`+meta.row+`)">`+'圖表'+`</button>
+                  return  `<button id="checkDetails`+meta.row.toString()+`" class="確定登錄按鈕" onClick="draw_charts(`+meta.row+`)">`+'圖表'+`</button>
                   
                   <button id="delReportHwBMI`+meta.row.toString()+`" class="刪除按鈕" onClick = "delReportHwBMI(`+meta.row+`)">`+'刪除'+`</button>`
                 },
@@ -773,9 +773,6 @@
           return(retuenObj);
         }        
         
-        //show_membership_page();
-        //show_body_report_page();
-        
         async function login() {
           
           // check if using Chrome
@@ -881,7 +878,7 @@
           
           if (使用身體組成)    $("#ml-身體組成資料").show();
           if (使用身高體重BMI) {$("#ml-身高體重BMI").show(); read身高體重BMI資料();}
-          if (使用握力器)      $("#ml-握力資料").show();
+          if (使用握力器)      {$("#ml-握力資料").show();   readDyno資料();}
           
           initTables();
           
@@ -943,9 +940,14 @@
         }
           
         async function 顯示身高體重BMI畫面(){
+          equip_type="hwBMI";
+          
           if (使用身體組成)    $("#ml-身體組成資料").show();          
           $("#ml-身高體重BMI").hide()  
           if (使用握力器) $("#ml-握力資料").show();
+          
+          $("#未登錄資料Title").text("身高體重 BMI 尚未登錄資料");
+          $("#新增修改會員按鈕").show();
           
           $(".page-wrapper").hide(); // hide all pages with page-wrapper class
           $("#ml-head_title").text("身高體重BMI查詢");
@@ -954,25 +956,59 @@
           $("#ml-登出").show();  
           
           $("#sidebar").show();
-          await show_membership_page()
+          await show_membership_page();
           
-          $("#檢查是否有新資料").text("檢查是否有新資料...");
-          console.log("檢查是否有新資料...");
+          $("#檢查是否有新資料").text("檢查是否有新資料");
+          console.log("檢查是否有新資料");
           await 新增未登錄資料hwBMI();
-          $("#檢查是否有新資料").text("每5秒檢查是否有新資料");
+          $("#檢查是否有新資料").text("每5秒檢查新資料");
           clearInterval(updateInterval);          
           //設定 timer 固定檢查身高體重BMI是否有新資料
           updateInterval = setInterval( async function () {
             //console.log("check new data");
             //newRecNum = await read身高體重BMI資料筆數();
             //console.log(newRecNum); 
-            $("#檢查是否有新資料").text("檢查是否有新資料...");
+            $("#檢查是否有新資料").text("檢查是否有新資料");
             await 新增未登錄資料hwBMI();
-            $("#檢查是否有新資料").text("每5秒檢查是否有新資料");
+            $("#檢查是否有新資料").text("每5秒檢查新資料");
             
           }, 5000);        
         }
                 
+
+        async function 顯示握力器畫面(){
+          equip_type="dyno";          
+          
+          if (使用身體組成)    $("#ml-身體組成資料").show();          
+          if (使用身高體重BMI) $("#ml-身高體重BMI").show(); 
+          if (使用握力器) $("#ml-握力資料").hide();
+          
+          $("#未登錄資料Title").text("握力量測 尚未登錄資料");
+          $("#新增修改會員按鈕").hide();
+          
+          $(".page-wrapper").hide(); // hide all pages with page-wrapper class
+          $("#ml-head_title").text("握力量測查詢");
+          $("#ml-登入單位").text(客戶名稱);         
+          $("#ml-登入單位").show();
+          $("#ml-登出").show();  
+          
+          $("#sidebar").show();
+          await show_membership_page();
+          
+          $("#檢查是否有新資料").text("檢查是否有新資料");
+          console.log("檢查是否有新資料");
+          await 新增未登錄資料Dyno();
+          $("#檢查是否有新資料").text("每5秒檢查新資料");
+          clearInterval(updateInterval);          
+          //設定 timer 固定檢查握力是否有新資料
+          updateInterval = setInterval( async function () {
+            $("#檢查是否有新資料").text("檢查是否有新資料");
+            await 新增未登錄資料Dyno();
+            $("#檢查是否有新資料").text("每5秒檢查新資料");
+            
+          }, 5000);        
+        }
+                     
         function dateTimeConv(timestamp){
           var tmp = new Date(timestamp+8*60*60*1000);
           var tmpStr= tmp.toISOString();
@@ -997,6 +1033,20 @@
           return(未登錄資料hwBMI);
         }
                   
+        //?API=15&Unit=金機興業
+        async function read未登錄資料Dyno() {
+          apiUrl = apiUrlBase+"?API=15&Unit="+客戶名稱;
+          await fetch(apiUrl)
+          .then(function(response) {
+            return(response.text());
+          })
+          .then(function(result) {
+            未登錄資料Dyno=JSON.parse(result);
+          });  
+          
+          return(未登錄資料Dyno);
+        }
+                          
 
         async function 新增未登錄資料hwBMI(){
           await read未登錄資料hwBMI();
@@ -1038,7 +1088,52 @@
           $("#未登錄記錄表").html(prependHtml);          
 
         }        
-                    
+                  
+        async function 新增未登錄資料Dyno(){
+          console.log("新增未登錄資料Dyno");
+          
+          await read未登錄資料Dyno();
+          //console.log(未登錄資料hwBMI);
+
+          var prependHtml="";
+          //for (unchecked_rec in 未登錄資料hwBMI) {
+          var new_rec_keys = Object.keys(未登錄資料Dyno);
+          for (var i=new_rec_keys.length-1; i>0; i--) {
+            var new_id    = 未登錄資料Dyno[new_rec_keys[i]].id;
+
+            if(會員資料dyno[new_id]==undefined) {
+              var new_name  = new_id+"不是會員";
+            } else {
+              var new_name  = 會員資料dyno[new_id].名字;        
+            }
+
+            var new_leftHandDyno = 未登錄資料Dyno[new_rec_keys[i]].dynoLeftHand;            
+            var new_rightHandDyno= 未登錄資料Dyno[new_rec_keys[i]].dynoRightHand;    
+            
+            var iso_tmp=(new Date(未登錄資料Dyno[new_rec_keys[i]].measure_time+8*60*60*1000)).toISOString();
+            var time_tmp=iso_tmp.replace('T', ' ');             
+            var nowStr           = time_tmp.substr(0,19);   
+
+
+            var recNoStr= recNo.toString();    
+
+            prependHtml = prependHtml +
+              '<div style="margin-top:10px" id=' + '"rec' + new_rec_keys[i] + '"><button class="確定登錄按鈕' + 
+              '" id="rb' + recNoStr + '" onClick="確定登錄按鈕(\''+ new_rec_keys[i] +'\')" >確定登錄</button>' +
+              '<span style="font-family:Noto Sans TC; font-size:18px; margin-left:0px">' + new_name +
+              '<span style="font-family:Noto Sans Mono; font-size:18px"> '+ nowStr+ ' </span>' + 
+
+              '</span>' + '<br><span style="font-family:Noto Sans Mono; font-size:14px; margin-left:0px">' + 
+              ' 左手握力:' + new_leftHandDyno + '公斤, 右手握力:' + new_rightHandDyno + '公斤 </span>'+
+              '</div>';    
+
+            recNo++;
+          }
+          //console.log(prependHtml);
+          $("#未登錄記錄表").html(prependHtml);          
+
+        }        
+                   
         async function read會員資料hwBMI() {
           //var 會員資料hwBMI;
           apiUrl = apiUrlBase+"?API=04&Unit="+客戶名稱;
@@ -1048,11 +1143,24 @@
           })
           .then(function(result) {
             會員資料hwBMI=JSON.parse(result);
-            //console.log(會員資料hwBMI);
           });  
           
           //return(會員資料hwBMI);
         }
+        
+       
+        async function read會員資料dyno() {
+          //var 會員資料hwBMI;
+          apiUrl = apiUrlBase+"?API=06&Unit="+客戶名稱;
+          await fetch(apiUrl)
+          .then(function(response) {
+            return(response.text());
+          })
+          .then(function(result) {
+            會員資料dyno=JSON.parse(result);
+          });  
+
+        }        
                 
         async function read身體組成資料筆數() {
           var recNum=0;
@@ -1068,7 +1176,7 @@
           return(recNum);
         }
         
-        async function read身高體重BMI資料筆數() {
+        async function read身高體重BMI資料筆數() { //目前沒用到
           var recNum=0;
           apiUrl = apiUrlBase+"?API=10&Unit="+客戶名稱+"&MeasureType=身高體重BMI";
           await fetch(apiUrl)
@@ -1163,13 +1271,11 @@
               databaseErr=true;
             }
           });                 
-        }
-          
+        }          
 
         async function read身高體重BMI資料(){
 
-          //使用 身高體重BMI資料;
-          
+          //使用 身高體重BMI資料;          
           apiUrl = apiUrlBase+"?API=11&Unit="+客戶名稱+"&MeasureType=身高體重BMI";
           console.log(apiUrl);          
           var databaseErr=false;
@@ -1208,9 +1314,56 @@
               databaseErr=true;
             }
           });                 
-        }
-                        
+        }     
         
+
+        async function readDyno資料(){
+          //使用 握力資料;          
+          apiUrl = apiUrlBase+"?API=11&Unit="+客戶名稱+"&MeasureType=握力器";
+          console.log(apiUrl);          
+          var databaseErr=false;
+          var readErr=false;
+          var returnObj={};
+          $.loading.start('讀取資料');
+          await $.ajax({
+            url: apiUrl,
+            type: "GET",
+            dataType: "text",
+            success: function(returnData) {            
+              $.loading.end();
+              if (returnData.includes("ERROR")) {
+                readErr=true;
+              } else {
+                returnObj=JSON.parse(returnData);
+                //console.log(returnObj);
+                
+                var returnObjKeys=Object.keys(returnObj);
+                for (var i=0; i < returnObjKeys.length; i++){
+                  //console.log(i, returnObj[returnObjKeys[i]]);
+                  //console.log(returnObj[returnObjKeys[i]].id, returnObj[returnObjKeys[i]].measure_time );
+                  if (握力資料[returnObj[returnObjKeys[i]].id]==undefined) {
+                    握力資料[returnObj[returnObjKeys[i]].id]={};
+                  }
+                  
+                  握力資料[returnObj[returnObjKeys[i]].id][returnObj[returnObjKeys[i]].measure_time]=returnObj[returnObjKeys[i]];
+                  
+                  //console.log(typeof returnObj[returnObjKeys[i]].measure_time, returnObj[returnObjKeys[i]].measure_time );
+                  var iso_tmp=(new Date(returnObj[returnObjKeys[i]].measure_time+8*60*60*1000)).toISOString();
+                  var time_tmp=iso_tmp.replace('T', ' ');                       
+                  握力資料[returnObj[returnObjKeys[i]].id][returnObj[returnObjKeys[i]].measure_time].measure_time=time_tmp.substr(0,19);
+                }
+                
+              }
+            },
+
+            error: function(e) {
+              $.loading.end();
+              console.log("error", e);
+              databaseErr=true;
+            }
+          });                 
+        }     
+                
         function show_login_page(){
           $(".page-wrapper").hide(); // hide all pages with page-wrapper class
           $("#login-page").show();            
@@ -1306,7 +1459,7 @@
                            
         }
         
-        async function 手動刷新hwBMI會員(){
+        async function 手動刷新會員(){
           $.loading.start('刷新資料');
           await queryMermbers();
           $.loading.end();
@@ -1315,47 +1468,79 @@
         var indexForDisplayingCharts;
         async function show_measurements(rec_num){ 
           indexForDisplayingCharts = rec_num;
-          await read身高體重BMI資料();
-          
-          console.log(rec_num);
-          $("#charts").hide();
-          if (身高體重BMI資料[memberResult[rec_num][0]]==undefined) {
-            alert("此會員沒有量測資料");
-            return;
+          console.log(equip_type);
+          if (equip_type=="hwBMI") {
+            await read身高體重BMI資料();        
+            console.log(rec_num);
+            $("#charts").hide();
+            if (身高體重BMI資料[memberResult[rec_num][0]]==undefined) {
+              alert("此會員沒有量測資料");
+              return;
+            }
+
+            $("#ml-量測紀錄標題").text("ID: "+memberResult[rec_num][0]+", 姓名:"+memberResult[rec_num][1]+" 量測記錄");
+
+            //console.log(memberResult[rec_num][0]);
+
+            var measure_rec = 身高體重BMI資料[memberResult[rec_num][0]];
+
+            hwBMIResult=[];
+            for (rec in measure_rec) {
+              var data=[];
+              data.push([measure_rec[rec].measure_time]);
+              data.push([measure_rec[rec].net_weight]);
+              data.push([measure_rec[rec].height]);
+              data.push([measure_rec[rec].bmi]);
+              data.push([measure_rec[rec].sn]);
+              hwBMIResult.push(data);
+            }
+            MeasurementsTable.clear();
+            MeasurementsTable.rows.add(hwBMIResult).draw();        
+            var col1_title=MeasurementsTable.column(1).header();
+            var col2_title=MeasurementsTable.column(2).header();
+            $(col1_title).html("體重");
+            $(col2_title).html("身高");
+            MeasurementsTable.column(3).visible(true);
+            
+          } else if (equip_type=="dyno") {
+            await readDyno資料();        
+            console.log(rec_num);
+            $("#charts").hide();
+            if (握力資料[memberResult[rec_num][0]]==undefined) {
+              alert("此會員沒有量測資料");
+              return;
+            }
+
+            $("#ml-量測紀錄標題").text("ID: "+memberResult[rec_num][0]+", 姓名:"+memberResult[rec_num][1]+" 量測記錄");
+
+            //console.log(memberResult[rec_num][0]);
+
+            var measure_rec = 握力資料[memberResult[rec_num][0]];
+
+            dynoResult=[];
+            for (rec in measure_rec) {
+//              var iso_tmp=(new Date(parseInt(measure_rec[rec].measure_time)+8*60*60*1000)).toISOString();
+//              var time_tmp=iso_tmp.replace('T', ' ');
+              var data=[];
+              data.push(measure_rec[rec].measure_time);
+              data.push([measure_rec[rec].dynoLeftHand]+" kg");
+              data.push([measure_rec[rec].dynoRightHand]+" kg");
+              data.push([measure_rec[rec].sn]);
+              dynoResult.push(data);
+            }
+
+
+            MeasurementsTable.clear();
+            MeasurementsTable.rows.add(dynoResult).draw();  
+            var col1_title=MeasurementsTable.column(1).header();
+            var col2_title=MeasurementsTable.column(2).header();
+            $(col1_title).html("左手握力");
+            $(col2_title).html("右手握力");
+            MeasurementsTable.column(3).visible(false);
           }
-                    
-          $("#ml-量測紀錄標題").text("ID: "+memberResult[rec_num][0]+", 姓名:"+memberResult[rec_num][1]+" 量測記錄");
-          
-          //console.log(memberResult[rec_num][0]);
-          
-          var measure_rec = 身高體重BMI資料[memberResult[rec_num][0]];
-          
-          hwBMIResult=[];
-          for (rec in measure_rec) {
-            var data=[];
-            data.push([measure_rec[rec].measure_time]);
-            data.push([measure_rec[rec].net_weight]);
-            data.push([measure_rec[rec].height]);
-            data.push([measure_rec[rec].bmi]);
-            data.push([measure_rec[rec].sn]);
-            hwBMIResult.push(data);
-          }
-          
-          
-          hwBMIMeasurementsTable.clear();
-          hwBMIMeasurementsTable.rows.add(hwBMIResult).draw();            
-          
-          
-          show_hwBMI_measurements_page();
-          
-//          if (data==0) {
-//            $("#會員資料表").hide();
-//            $("#chartDiv").show();
-//            $('#ml-資料標題').text('量測記錄');
-//            drawChart();
-//          } else {
-//            alert("Demo 版不支援")
-//          }
+            
+            
+          show_measurements_page();          
         }
 
         function updateReports(){
@@ -1416,12 +1601,17 @@
           });
         }
 
-        function show會員資料表(){
-          //$('#chartDiv').hide();
-          $("#hwBMI-measurements-page").hide();
-          $('#membership-page').show();
-          $('#會員資料表').show();
-          $('#ml-資料標題').text('會員資料');
+        function show會員資料表(){ // type: 'hwBMI', 'dyno'
+//          $("#hwBMI-measurements-page").hide();
+//          $('#hwBMImembership-page').show();
+//          $('#hwBMI會員資料表').show();
+          
+          var hidePage="#measurements-page";
+          $(hidePage).hide();
+          var showPage="#membership-page";
+          $(showPage).show();
+          var sel_會員資料表 = "#"+equip_type+"會員資料表";
+          $(sel_會員資料表).show();
         }
                
         
@@ -1430,14 +1620,25 @@
           $(".sidebar-item").css("color","white")
 
           $("#membership-page").show(); 
-          await queryMermbers();
-          if (!index_is_loaded) {
+          
+          if (equip_type=="hwBMI") {
             await queryMermbers();
-            index_is_loaded = true;     
+            if (!index_is_loaded) {
+              await queryMermbers();
+              index_is_loaded = true;     
+            }
+          } else if (equip_type=="dyno"){
+            await queryMermbers();
+            if (!index_is_loaded) {
+              await queryMermbers();
+              index_is_loaded = true;     
+            }            
+          } else {
+            alert("equip_type is wrong");
           }
         }        
 
-        function show_hwBMI_measurements_page(){
+        function show_measurements_page(){
           $(".page-wrapper").hide(); // hide all pages with page-wrapper class
           $(".sidebar-item").css("color","white");
           
@@ -1445,7 +1646,7 @@
  
           //prepare data
           
-          $("#hwBMI-measurements-page").show(); 
+          $("#measurements-page").show(); 
 
         } 
         
@@ -1484,160 +1685,237 @@
           });  
         }        
         
-        function draw_hwBMI_charts(itemSelect){          
-          //$("#hwBMI_blank").hide();          
+        function draw_charts(itemSelect){          
+         
           $("#週按鈕").css("background-color","#FF4350");
           $("#月按鈕").css("background-color","lightgray");
           $("#全部按鈕").css("background-color","lightgray"); 
           $("#dateRangeButtons").show();          
-          $("#charts").show();          
-          console.log(hwBMIResult[itemSelect]);
-        
+          $("#charts").show();  
+          
           chartRange=0; //display in week
           
           var tmpArr=$("#ml-量測紀錄標題").text().split(",");
           var selectID=tmpArr[0].substr(4);
           console.log(selectID);
           
-          所有量測數據=身高體重BMI資料[selectID];
+          if (equip_type=="hwBMI") {
+            所有量測數據=身高體重BMI資料[selectID];
+            chartCenterDate = new Date(hwBMIResult[itemSelect][0][0]).getTime();
+          }
           
-          chartCenterDate = new Date(hwBMIResult[itemSelect][0][0]).getTime()
+          if (equip_type=="dyno") {
+            所有量測數據=握力資料[selectID];
+            console.log(chartCenterDate, dynoResult[itemSelect][0], itemSelect);            
+            chartCenterDate = new Date(dynoResult[itemSelect][0]).getTime()
+          }
+          
           getDataOfAweek(chartCenterDate);
           
           if (!chartsInited) {
             drawChart();
             chartsInited=true;
+            if (equip_type=="hwBMI"){
+              myChart1.data.datasets[0].label="身高(公分)";              
+              myChart2.data.datasets[0].label="體重(公斤)";              
+              $("#myChart3").show();
+            }
+            
+            if (equip_type=="dyno"){
+              myChart1.data.datasets[0].label="左手握力(公斤)";              
+              myChart2.data.datasets[0].label="右手握力(公斤)";              
+              $("#myChart3").hide();
+            }            
+            
+            myChart1.update();                 
+            myChart2.update();                 
+            myChart3.update();
+            
           } else {
             $("#chart_range").text(weekLabelsforChart[0].substr(0,10)+" ~ "+weekLabelsforChart[weekLabelsforChart.length-1].substr(0,10));
 
-            myChartHeight.data.labels=weekLabelsforChart;
-            myChartWeight.data.labels=weekLabelsforChart;
-            myChartBMI.data.labels=weekLabelsforChart;
+            myChart1.data.labels=weekLabelsforChart;
+            myChart2.data.labels=weekLabelsforChart;
+            myChart3.data.labels=weekLabelsforChart;
 
-            myChartHeight.data.datasets[0].data=weekDataForHeight; 
-            myChartWeight.data.datasets[0].data=weekDataForWeight; 
-            myChartBMI.data.datasets[0].data=weekDataForBMI; 
+            myChart1.data.datasets[0].data=weekDataForChart1; 
+            myChart2.data.datasets[0].data=weekDataForChart2; 
+            myChart3.data.datasets[0].data=weekDataForChart3; 
 
-            myChartHeight.options.scales.x.display=true;
-            myChartWeight.options.scales.x.display=true;
-            myChartBMI.options.scales.x.display=true;
+            myChart1.options.scales.x.display=true;
+            myChart2.options.scales.x.display=true;
+            myChart3.options.scales.x.display=true;
 
-            myChartHeight.update();                 
-            myChartWeight.update();                 
-            myChartBMI.update();                         
+            if (equip_type=="hwBMI"){
+              myChart1.data.datasets[0].label="身高(公分)";              
+              myChart2.data.datasets[0].label="體重(公斤)";              
+              $("#myChart3").show();
+            }
+            
+            if (equip_type=="dyno"){
+              myChart1.data.datasets[0].label="左手握力(公斤)";              
+              myChart2.data.datasets[0].label="右手握力(公斤)";              
+              $("#myChart3").hide();
+            }            
+            
+            myChart1.update();                 
+            myChart2.update();                 
+            myChart3.update();                         
           }
         }   
         
         function getDataOfAweek(reqDate){
+          console.log(reqDate);
           keyOfMeasurements=Object.keys(所有量測數據);      
           weekLabelsforChart=[];
-          weekDataForHeight=[];
-          weekDataForWeight=[];
-          weekDataForBMI=[];
+          weekDataForChart1=[];
+          weekDataForChart2=[];
+          weekDataForChart3=[];
 
           for (var i=-3; i<4; i++) { // 從選擇日前四天到後兩天
             //selTime = new Date(reqDate - UTC_delta*3600000 + i*86400000);          
             selTime = new Date(reqDate - 0*3600000 + i*86400000);          
-            matchFullDate= matchFullDate = selTime.toISOString().substr(0,10);
+            matchFullDate= selTime.toISOString().substr(0,10);
             //console.log(matchFullDate);
 
-            var matched=false;          
-            for (var rec in 所有量測數據) {
+            var matched=false;   
+            if (equip_type=="hwBMI") {
+              for (var rec in 所有量測數據) {
+                if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
+                  weekLabelsforChart.push(所有量測數據[rec].measure_time);
 
-              if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
-                weekLabelsforChart.push(所有量測數據[rec].measure_time);
-                
-                //當沒有身高資料時，height是 "0"，不是"0cm"
-                if (所有量測數據[rec].height=="0") {
-                  weekDataForHeight.push(0);
-                } else {
-                  weekDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
-                }
-                weekDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
-                weekDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
-                matched=true;
-              }            
+                  //當沒有身高資料時，height是 "0"，不是"0cm"
+                  if (所有量測數據[rec].height=="0") {
+                    weekDataForChart1.push(0);
+                  } else {
+                    weekDataForChart1.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+                  }
+                  weekDataForChart2.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
+                  weekDataForChart3.push(parseFloat(所有量測數據[rec].bmi));
+                  matched=true;
+                }            
+              }
             }
+            
+            if (equip_type=="dyno") {
+              for (var rec in 所有量測數據) {
+                if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
+                  weekLabelsforChart.push(所有量測數據[rec].measure_time);
+                  weekDataForChart1.push(parseFloat(所有量測數據[rec].dynoLeftHand));
+                  weekDataForChart2.push(parseFloat(所有量測數據[rec].dynoRightHand));                  
+                  weekDataForChart3.push(parseFloat(所有量測數據[rec].sn));
+                  matched=true;
+                }            
+              }
+            }            
+            
+            
             if (!matched) {
               weekLabelsforChart.push(matchFullDate);
-              weekDataForHeight.push(null);          
-              weekDataForWeight.push(null);          
-              weekDataForBMI.push(null);          
+              weekDataForChart1.push(null);          
+              weekDataForChart2.push(null);          
+              weekDataForChart3.push(null);          
             }
           }
 
-          console.log(weekDataForHeight);        
-          console.log(weekDataForWeight);        
-          console.log(weekDataForBMI);        
+//          console.log(weekDataForChart1);        
+//          console.log(weekDataForChart2);        
+//          console.log(weekDataForChart3);        
         }
 
         function getDataOfAmonth(reqDate){
-        keyOfMeasurements=Object.keys(所有量測數據);
-        monthLabelsforChart=[];
-        monthDataForHeight=[];
-        monthDataForWeight=[];
-        monthDataForBMI=[];     
-        
-        for (var i=-15; i<16; i++) { 
-          selTime = new Date(reqDate - UTC_delta*3600000+ i*86400000);
-          //console.log(selTime.toISOString());
-          matchFullDate = selTime.toISOString().substr(0,10);
-          //console.log(matchFullDate);
-                
-          var matched=false;          
-          for (var rec in 所有量測數據) {
+          keyOfMeasurements=Object.keys(所有量測數據);
+          monthLabelsforChart=[];
+          monthDataForChart1=[];
+          monthDataForChart2=[];
+          monthDataForChart3=[];     
 
-            if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
-              
-              monthLabelsforChart.push(所有量測數據[rec].measure_time);
-              
-              monthDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
-              monthDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
-              monthDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
-              matched=true;
+          for (var i=-15; i<16; i++) { 
+            selTime = new Date(reqDate - UTC_delta*3600000+ i*86400000);
+            //console.log(selTime.toISOString());
+            matchFullDate = selTime.toISOString().substr(0,10);
+            //console.log(matchFullDate);
+
+            var matched=false;   
+            if (equip_type=="hwBMI") {            
+              for (var rec in 所有量測數據) {
+                if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
+
+                  monthLabelsforChart.push(所有量測數據[rec].measure_time);
+
+                  monthDataForChart1.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+                  monthDataForChart2.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
+                  monthDataForChart3.push(parseFloat(所有量測數據[rec].bmi));
+                  matched=true;
+                }            
+              }
+            }
+            
+            if (equip_type=="dyno") {
+              for (var rec in 所有量測數據) {
+                if (所有量測數據[rec].measure_time.substr(0,10)==matchFullDate){
+                  monthLabelsforChart.push(所有量測數據[rec].measure_time);
+                  monthDataForChart1.push(parseFloat(所有量測數據[rec].dynoLeftHand));
+                  monthDataForChart2.push(parseFloat(所有量測數據[rec].dynoRightHand));                  
+                  monthDataForChart3.push(parseFloat(所有量測數據[rec].sn));
+                  matched=true;
+                }            
+              }
             }            
+            if (!matched) {
+              monthLabelsforChart.push(matchFullDate);
+              monthDataForChart1.push(null);          
+              monthDataForChart2.push(null);          
+              monthDataForChart3.push(null);          
+            }
           }
-          if (!matched) {
-            monthLabelsforChart.push(matchFullDate);
-            monthDataForHeight.push(null);          
-            monthDataForWeight.push(null);          
-            monthDataForBMI.push(null);          
-          }
-        }
-        
-        console.log(monthDataForHeight);        
-        console.log(monthDataForWeight);        
-        console.log(monthDataForBMI);        
-      }        
+
+//          console.log(monthDataForChart1);        
+//          console.log(monthDataForChart2);        
+//          console.log(monthDataForChart3);        
+        }        
         
         function getDataOfAll(){
 
           allLabelsforChart=[];
-          allDataForHeight=[];
-          allDataForWeight=[];
-          allDataForBMI=[];
+          allDataForChart1=[];
+          allDataForChart2=[];
+          allDataForChart3=[];
 
-          for (var rec in 所有量測數據) {
+          if (equip_type=="hwBMI") {
+            for (var rec in 所有量測數據) {
 
-              allLabelsforChart.push(所有量測數據[rec].measure_time);
+                allLabelsforChart.push(所有量測數據[rec].measure_time);
 
-              allDataForHeight.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
-              allDataForWeight.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
-              allDataForBMI.push(parseFloat(所有量測數據[rec].bmi));
+                allDataForChart1.push(parseFloat(所有量測數據[rec].height.substr(0,所有量測數據[rec].height.length-2)));
+                allDataForChart2.push(parseFloat(所有量測數據[rec].net_weight.substr(0,所有量測數據[rec].net_weight.length-2)));
+                allDataForChart3.push(parseFloat(所有量測數據[rec].bmi));
 
+            }
           }
 
-          console.log(allLabelsforChart);        
-          console.log(allDataForHeight);        
-          console.log(allDataForWeight);        
-          console.log(allDataForBMI);        
+          if (equip_type=="dyno") {
+            for (var rec in 所有量測數據) {
+
+                allLabelsforChart.push(所有量測數據[rec].measure_time);
+
+                allDataForChart1.push(parseFloat(所有量測數據[rec].dynoLeftHand));
+                allDataForChart2.push(parseFloat(所有量測數據[rec].dynoRightHand)); 
+                allDataForChart3.push(parseFloat(所有量測數據[rec].sn));
+            }
+          }          
+//          
+//          console.log(allLabelsforChart);        
+//          console.log(allDataForChart1);        
+//          console.log(allDataForChart2);        
+//          console.log(allDataForChart3);        
         }
         
         function drawChart(){          
           $("#chart_range").text(weekLabelsforChart[0].substr(0,10)+" ~ "+weekLabelsforChart[weekLabelsforChart.length-1].substr(0,10));
 
-          ctxH = $('#myChartHeight');
-          myChartHeight = new Chart(ctxH, {           
+          ctx1 = $('#myChart1');
+          myChart1 = new Chart(ctx1, {           
             type: 'line',
             data: {
               //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
@@ -1648,7 +1926,7 @@
                 ],
                 label: '身高(公分)',
                 cubicInterpolationMode: 'monotone',                
-                data: weekDataForHeight
+                data: weekDataForChart1
               }]
             },
             options: {
@@ -1677,8 +1955,8 @@
             }            
           });    
 
-          ctxW = $('#myChartWeight');
-          myChartWeight = new Chart(ctxW, {
+          ctx2 = $('#myChart2');
+          myChart2 = new Chart(ctx2, {
             type: 'line',
             data: {
               //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
@@ -1689,7 +1967,7 @@
                 ],
                 label: '體重(公斤)',
                 cubicInterpolationMode: 'monotone',
-                data: weekDataForWeight
+                data: weekDataForChart2
               }]
             },
             options: {
@@ -1718,8 +1996,8 @@
             } 
           });
 
-          ctxB = $('#myChartBMI');
-          myChartBMI = new Chart(ctxB, {
+          ctx3 = $('#myChart3');
+          myChart3 = new Chart(ctx3, {
             type: 'line',
             data: {
               //labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
@@ -1730,7 +2008,7 @@
                 ],
                 label: 'BMI',
                 cubicInterpolationMode: 'monotone',                
-                data: weekDataForBMI
+                data: weekDataForChart3
               }]
             },
             options: {
@@ -1775,21 +2053,21 @@
           getDataOfAweek(chartCenterDate);
           $("#chart_range").text(weekLabelsforChart[0].substr(0,10)+" ~ "+weekLabelsforChart[weekLabelsforChart.length-1].substr(0,10));
 
-          myChartHeight.data.labels=weekLabelsforChart;
-          myChartWeight.data.labels=weekLabelsforChart;
-          myChartBMI.data.labels=weekLabelsforChart;
+          myChart1.data.labels=weekLabelsforChart;
+          myChart2.data.labels=weekLabelsforChart;
+          myChart3.data.labels=weekLabelsforChart;
 
-          myChartHeight.data.datasets[0].data=weekDataForHeight; 
-          myChartWeight.data.datasets[0].data=weekDataForHeight; 
-          myChartBMI.data.datasets[0].data=weekDataForHeight; 
+          myChart1.data.datasets[0].data=weekDataForChart1; 
+          myChart2.data.datasets[0].data=weekDataForChart1; 
+          myChart3.data.datasets[0].data=weekDataForChart1; 
 
-          myChartHeight.options.scales.x.display=true;
-          myChartWeight.options.scales.x.display=true;
-          myChartBMI.options.scales.x.display=true;
+          myChart1.options.scales.x.display=true;
+          myChart2.options.scales.x.display=true;
+          myChart3.options.scales.x.display=true;
 
-          myChartHeight.update();                 
-          myChartWeight.update();                 
-          myChartBMI.update();                 
+          myChart1.update();                 
+          myChart2.update();                 
+          myChart3.update();                 
         }
         
         function displayChartsInMonth(){
@@ -1804,21 +2082,21 @@
         
         getDataOfAmonth(chartCenterDate);
         $("#chart_range").text(monthLabelsforChart[0].substr(0,10)+" ~ "+monthLabelsforChart[monthLabelsforChart.length-1].substr(0,10));
-        myChartHeight.data.labels=monthLabelsforChart;
-        myChartWeight.data.labels=monthLabelsforChart;
-        myChartBMI.data.labels=monthLabelsforChart;
+        myChart1.data.labels=monthLabelsforChart;
+        myChart2.data.labels=monthLabelsforChart;
+        myChart3.data.labels=monthLabelsforChart;
         
-        myChartHeight.data.datasets[0].data=monthDataForHeight;
-        myChartWeight.data.datasets[0].data=monthDataForWeight;
-        myChartBMI.data.datasets[0].data=monthDataForBMI;
+        myChart1.data.datasets[0].data=monthDataForChart1;
+        myChart2.data.datasets[0].data=monthDataForChart2;
+        myChart3.data.datasets[0].data=monthDataForChart3;
         
-        myChartHeight.options.scales.x.display=false;        
-        myChartWeight.options.scales.x.display=false;        
-        myChartBMI.options.scales.x.display=false;        
+        myChart1.options.scales.x.display=false;        
+        myChart2.options.scales.x.display=false;        
+        myChart3.options.scales.x.display=false;        
       
-        myChartHeight.update();          
-        myChartWeight.update();          
-        myChartBMI.update();                 
+        myChart1.update();          
+        myChart2.update();          
+        myChart3.update();                 
       }
         
         function displayChartsInAll(){
@@ -1835,37 +2113,51 @@
 
           $("#chart_range").text(allLabelsforChart[0].substr(0,10)+" ~ "+allLabelsforChart[allLabelsforChart.length-1].substr(0,10));        
 
-          myChartHeight.data.labels=allLabelsforChart;
-          myChartWeight.data.labels=allLabelsforChart;
-          myChartBMI.data.labels=allLabelsforChart;
+          myChart1.data.labels=allLabelsforChart;
+          myChart2.data.labels=allLabelsforChart;
+          myChart3.data.labels=allLabelsforChart;
 
-          myChartHeight.data.datasets[0].data=allDataForHeight;
-          myChartWeight.data.datasets[0].data=allDataForWeight;
-          myChartBMI.data.datasets[0].data=allDataForBMI;
+          myChart1.data.datasets[0].data=allDataForChart1;
+          myChart2.data.datasets[0].data=allDataForChart2;
+          myChart3.data.datasets[0].data=allDataForChart3;
 
-          myChartHeight.options.scales.x.display=false; 
-          myChartWeight.options.scales.x.display=false; 
-          myChartBMI.options.scales.x.display=false; 
+          myChart1.options.scales.x.display=false; 
+          myChart2.options.scales.x.display=false; 
+          myChart3.options.scales.x.display=false; 
 
-          myChartHeight.update();        
-          myChartWeight.update();        
-          myChartBMI.update();        
+          myChart1.update();        
+          myChart2.update();        
+          myChart3.update();        
         } 
         
-        async function queryMermbers(){
-          
-          await read會員資料hwBMI();
-          //console.log(會員資料hwBMI);
-          
-          var 會員資料hwBMI_Keys = Object.keys(會員資料hwBMI);
-          memberResult=[];
-          for (var i=0; i< 會員資料hwBMI_Keys.length; i++){
-            //console.log(會員資料hwBMI[會員資料hwBMI_Keys[i]]);
-            memberResult[i]=[
-              會員資料hwBMI[會員資料hwBMI_Keys[i]].Id, 
-              會員資料hwBMI[會員資料hwBMI_Keys[i]].名字, 
-              會員資料hwBMI[會員資料hwBMI_Keys[i]].電話, 
-              "X", '', '', true,];            
+        async function queryMermbers(){          
+          if (equip_type=="hwBMI") {
+            await read會員資料hwBMI();
+            var 會員資料hwBMI_Keys = Object.keys(會員資料hwBMI);
+            memberResult=[];
+            for (var i=0; i< 會員資料hwBMI_Keys.length; i++){
+              //console.log(會員資料hwBMI[會員資料hwBMI_Keys[i]]);
+              memberResult[i]=[
+                會員資料hwBMI[會員資料hwBMI_Keys[i]].Id, 
+                會員資料hwBMI[會員資料hwBMI_Keys[i]].名字, 
+                會員資料hwBMI[會員資料hwBMI_Keys[i]].電話, 
+                "X", '', '', true,];            
+            }  
+          }
+          else if (equip_type=="dyno") {
+            await read會員資料dyno();
+            var 會員資料dyno_Keys = Object.keys(會員資料dyno);
+            memberResult=[];
+            for (var i=0; i< 會員資料dyno_Keys.length; i++){
+              memberResult[i]=[
+                會員資料dyno[會員資料dyno_Keys[i]].Id, 
+                會員資料dyno[會員資料dyno_Keys[i]].名字, 
+                會員資料dyno[會員資料dyno_Keys[i]].電話, 
+                "X", '', '', true,];            
+            }            
+          }
+          else {
+            alert("equip_type is wrong");
           }
                   
           memberTable.clear();

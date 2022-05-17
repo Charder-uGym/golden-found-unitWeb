@@ -12,13 +12,14 @@
  
   <div id="sidebar-menu" class="sidebar-menu">
 
-    <a style="margin-left:20px; margin-top:0px; padding-top:0px; color:white; font-size:20px; font-weight:bold">身高體重 BMI 尚未登錄資料</a>
+    <a id="未登錄資料Title" style="margin-left:20px; margin-top:0px; padding-top:0px; color:white; font-size:16px; font-weight:bold"></a>
+    <button class="確定登錄按鈕" onClick="登錄所有紀錄()">登錄所有紀錄</button>
     
-    <a id="檢查是否有新資料" style="color:white; float:right; margin-right:10px; margin-top:5px;">每5秒檢查是否有新資料</a><br>
+    <a id="檢查是否有新資料" style="color:white; float:right; margin-right:10px; margin-top:5px;">每5秒檢查新資料</a><br>
 
 
 <!--    <nav style="color:white;margin-left:20px; margin-right:10px; height:703px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       -->
-    <nav style="color:white;margin-left:20px; margin-right:10px; height:500px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       
+    <nav style="color:white;margin-left:20px; margin-right:10px; width:420px; height:500px; overflow:hidden;overflow-y:scroll;;border-style:solid;border-color:#FFAC55">       
       <ul id="未登錄記錄表" style="padding:10px">
       </ul>          
     </nav>
@@ -81,18 +82,38 @@
     async function 確定登錄按鈕(id){
       console.log(typeof id, id);
       
-      var recToBeDeleted=未登錄資料hwBMI[id];
+      if (equip_type=="hwBMI") {
+        var recToBeDeleted=未登錄資料hwBMI[id];
+
+        var 刪除紀錄ID名 = (會員資料hwBMI[recToBeDeleted.id]==undefined)?recToBeDeleted.id:會員資料hwBMI[recToBeDeleted.id].名字;
+
+        var checkInfo = '<div style="font-size:16px">'+
+                        recToBeDeleted.measure_time+' '+刪除紀錄ID名+' 已被登錄'+
+                        '<br></div>';
+
+
+        await 刪除一筆未登錄量測記錄hwBMI(id);
+
+        新增未登錄資料hwBMI();
+      }
       
-      var 刪除紀錄ID名 = (會員資料hwBMI[recToBeDeleted.id]==undefined)?recToBeDeleted.id:會員資料hwBMI[recToBeDeleted.id].名字;
-      
-      var checkInfo = '<div style="font-size:16px">'+
-                      recToBeDeleted.measure_time+' '+刪除紀錄ID名+' 已被登錄'+
-                      '<br></div>';
-      
-      
-      await 刪除一筆未登錄量測記錄hwBMI(id);
-      
-      新增未登錄資料hwBMI();
+      if (equip_type=="dyno") {
+        var recToBeDeleted=未登錄資料Dyno[id];
+
+        var 刪除紀錄ID名 = (會員資料dyno[recToBeDeleted.id]==undefined)?recToBeDeleted.id:會員資料dyno[recToBeDeleted.id].名字;
+        
+        var iso_tmp=(new Date(recToBeDeleted.measure_time+8*60*60*1000)).toISOString();
+        var time_tmp=iso_tmp.replace('T', ' ');   
+
+        var checkInfo = '<div style="font-size:16px">'+
+                        time_tmp.substr(0,19)+' '+刪除紀錄ID名+' 量測記錄已被登錄'+
+                        '<br></div>';
+
+
+        await 刪除一筆未登錄量測記錄dyno(id);
+
+        新增未登錄資料Dyno();
+      }      
       
       checkInfoHtml = checkInfo + checkInfoHtml;
       $("#已登錄記錄").html(checkInfoHtml);          
@@ -115,9 +136,30 @@
       //return(未登錄資料hwBMI);
     }
     
+
+    // API=16 刪除一筆未登錄量測記錄hwBMI
+    // for test: http://localhost:5000/?API=16&Unit=金機興業&Key=sn_timestamp
+    async function 刪除一筆未登錄量測記錄dyno(keyStr) {
+      apiUrl = apiUrlBase+"?API=16&Unit="+客戶名稱+"&Key="+keyStr;
+      //console.log(apiUrl);
+      await fetch(apiUrl)
+      .then(function(response) {
+        return(response.text());
+      })
+      .then(function(result) {        
+        //console.log(result);
+      });  
+
+    }
+      
     function 清除已登錄記錄() {
       checkInfoHtml = "";
       $("#已登錄記錄").html(checkInfoHtml);       
+    }
+    
+    function 登錄所有紀錄(){
+      var newRecKeys=Object.keys(未登錄資料hwBMI);
+      for (var i=1; i<newRecKeys.length;i++) 確定登錄按鈕(newRecKeys[i]);
     }
     
   </script>
